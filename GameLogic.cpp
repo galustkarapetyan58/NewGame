@@ -13,9 +13,9 @@ bool GameLogic::ok()
 }
 void GameLogic::buttonPressedSlot(int i, int j){
 
-
+    int white = m_mainWindow->countOfWhite(), grey = m_mainWindow->countOfGrey();
     m_state = m_mainWindow->getState();
-    if(!ok())
+    if(!ok() && white+grey!=(m_state.size()-1)*(m_state.size()-1))
     {
     if (m_state[i][j]) {
         emit gameSignal(i, j);
@@ -23,27 +23,27 @@ void GameLogic::buttonPressedSlot(int i, int j){
       }
     }
     else{
-            m_mainWindow->close();
-            QVBoxLayout* layout = new QVBoxLayout();
-            QString line = m_bubbles[m_bubbles.size()-1][0]->styleSheet();
-            QLabel* label;
-            QString edit = "";
-            if(line.contains("background-color: white"))
-            {
-                edit = "Congratulations, Player2, You Have Won";
-                label = new QLabel(edit);
-                label->setAlignment(Qt::AlignCenter);
-                label->setStyleSheet("font-size: 18px; color: red;");
-            }
-            else{
-                edit = "Congratulations, Player1, You Have Won";
-                label = new QLabel(edit);
-                label->setAlignment(Qt::AlignCenter);
-                label->setStyleSheet("font-size: 18px; color: blue;");
-            }
-            QWidget* window = new QWidget;
-            layout->addWidget(label);
-            window->setLayout(layout);
-            window->show();
+        m_mainWindow->close();
+        QVBoxLayout* layout = new QVBoxLayout();
+        QString line = m_bubbles[m_bubbles.size()-1][0]->styleSheet();
+        QLabel* label;
+        QString edit = "";
+        if(line.contains("background-color: white"))
+        {
+            edit = "Congratulations, Player1, You Have Won";
+            label = new QLabel(edit);
+            label->setAlignment(Qt::AlignCenter);
+            label->setStyleSheet("font-size: 18px; color: blue;");
+        }
+        else{
+            edit = "Congratulations, Player2, You Have Won";
+            label = new QLabel(edit);
+            label->setAlignment(Qt::AlignCenter);
+            label->setStyleSheet("font-size: 18px; color: red;");
+        }
+        QWidget* window = new QWidget;
+        layout->addWidget(label);
+        window->setLayout(layout);
+        window->show();
     }
 }

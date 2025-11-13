@@ -241,6 +241,20 @@ int MainWindow::countOfWhite()
     return cnt;
 }
 
+int MainWindow::countOfGrey()
+{
+    int cnt = 0;
+    for(int x = 0; x < m_bubbles.size(); x++)
+    {
+        for(int y = 0; y < m_bubbles[x].size(); y++)
+        {
+            QString line = m_bubbles[x][y]->styleSheet();
+            if(line.contains("grey"))
+                cnt++;
+        }
+    }
+    return cnt;
+}
 void MainWindow::mainWindowSlot(int i, int j)
 {
     QPushButton* btn = m_bubbles[i][j];

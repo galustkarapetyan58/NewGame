@@ -18,6 +18,8 @@ public:
     const QVector<QVector<QPushButton*>>& getBubbles() const { return m_bubbles; }
      const QVector<QVector<bool>>& getState() const { return m_state; }
     bool isAllGrey();
+     int countOfWhite();
+     int countOfGrey();
 private:
 
     bool isBlue(int x, int y);
@@ -28,7 +30,6 @@ private:
     void setBlue(int x, int y);
     void animateBackgroundColor(QPushButton* btn, QColor start, QColor end, int duration = 200);
     void animateHighlight(QPushButton* btn);
-    int countOfWhite();
 signals:
     void buttonPressedSignal(int i, int j);
 public slots:
