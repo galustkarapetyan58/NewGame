@@ -261,7 +261,6 @@ void MainWindow::mainWindowSlot(int i, int j)
     QString s = btn->text();
     QString o = btn->styleSheet();
     QString _o = o;
-    QVector<QVector<bool>> state = m_state;
 
     if (s.contains("✔"))
     {
@@ -344,7 +343,9 @@ void MainWindow::mainWindowSlot(int i, int j)
 
     bool clickable = false;
     bool blue = isBlue(i, j);
-
+    QString line = m_bubbles[i][j]->styleSheet();
+    if(!line.contains("grey"))
+    {
     if (!hasWhite(i))
     {
         clickable = true;
@@ -390,9 +391,9 @@ void MainWindow::mainWindowSlot(int i, int j)
     {
         bool leftBlue  = (j > 0 && isBlue(i, j - 1));
         bool rightBlue = (j < m_bubbles[i].size() - 1 && isBlue(i, j + 1));
-
         if (leftBlue || rightBlue || j == 0 || j == m_bubbles[i].size() - 1)
             setBlue(i, j);
     }
   }
+}
 }

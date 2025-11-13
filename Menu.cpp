@@ -238,7 +238,7 @@ int size = 0;
                 }
 
                 if (a.contains("Start"))
-                {                    bool ok = false;
+                {   bool ok = false;
                     int cnt = 0;
                     for(int x = 0; x <= 1; x++)
                     {
@@ -262,6 +262,8 @@ int size = 0;
                     if(ok)
                     {
                     m_window->close();
+                    QString line = m_allButtons[0][0]->styleSheet();
+                    if(!line.contains("background-color: white"))
                     emit startSignal(size);
                     }
                 }
