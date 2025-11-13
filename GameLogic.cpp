@@ -7,25 +7,16 @@ GameLogic::GameLogic(MainWindow* mainWindow): m_mainWindow(mainWindow) {
     m_bubbles=m_mainWindow->getBubbles();
 }
 
-
-
+bool GameLogic::ok()
+{
+    return m_mainWindow->isAllGrey();
+}
 void GameLogic::buttonPressedSlot(int i, int j){
 
-    bool ok = true;
-    for(int x = 0; x < m_bubbles.size()-1; x++)
-    {
-        for(int y = 0; y < m_bubbles[x].size(); y++)
-        {
-            QString line = m_bubbles[x][y]->styleSheet();
-            if(!line.contains("grey"))
-            {
-                ok=false;
-                break;
-            }
-        }
-    }
-    if(!ok){
+
     m_state = m_mainWindow->getState();
+    if(!ok())
+    {
     if (m_state[i][j]) {
         emit gameSignal(i, j);
 

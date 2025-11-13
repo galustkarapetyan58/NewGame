@@ -17,6 +17,7 @@ public:
     explicit MainWindow(int n, QWidget *parent = nullptr);
     const QVector<QVector<QPushButton*>>& getBubbles() const { return m_bubbles; }
      const QVector<QVector<bool>>& getState() const { return m_state; }
+    bool isAllGrey();
 private:
 
     bool isBlue(int x, int y);

@@ -10,7 +10,7 @@ signals:
     void gameSignal(int i, int j);
 public:
    explicit GameLogic(MainWindow* mainwindow);
-
+    bool ok();
 public slots:
     void buttonPressedSlot(int i, int j);
 private:

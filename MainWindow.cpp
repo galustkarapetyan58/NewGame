@@ -193,7 +193,23 @@ void MainWindow::setupMembers() {
     setCentralWidget(m_window);
 }
 
-
+bool MainWindow::isAllGrey()
+{
+    bool ok = true;
+    for(int x = 0; x < m_bubbles.size()-1; x++)
+    {
+        for(int y = 0; y < m_bubbles[x].size(); y++)
+        {
+            QString line = m_bubbles[x][y]->styleSheet();
+            if(!line.contains("grey"))
+            {
+                ok=false;
+                break;
+            }
+        }
+    }
+    return ok;
+}
 
 void MainWindow::makeConnections() {
     m_state.resize(m_bubbles.size());
@@ -230,9 +246,11 @@ void MainWindow::mainWindowSlot(int i, int j)
     QPushButton* btn = m_bubbles[i][j];
     QString s = btn->text();
     QString o = btn->styleSheet();
+    QString _o = o;
+    QVector<QVector<bool>> state = m_state;
+
     if (s.contains("✔"))
     {
-
         for (int x = 0; x < m_bubbles.size()-1; x++)
         {
             for (int y = 0; y < m_bubbles[x].size(); y++)
@@ -251,9 +269,7 @@ void MainWindow::mainWindowSlot(int i, int j)
         }
         if(!o.contains("background-color: white"))
         {
-            m_label1->setStyleSheet("font-size: 18px; color: black;");
-            m_label2->setStyleSheet("font-size: 18px; color: red;");
-            if(countOfWhite())
+            if(countOfWhite()){
             btn->setStyleSheet(
                 "QPushButton {"
                 "   background-color: white;"
@@ -271,12 +287,19 @@ void MainWindow::mainWindowSlot(int i, int j)
                 "   color: red;"
                 "}"
                 );
+                o = btn->styleSheet();
+            }
+            if(_o!=o)
+            {
 
+
+                 m_label1->setStyleSheet("font-size: 18px; color: black;");
+                 m_label2->setStyleSheet("font-size: 18px; color: red;");
+            }
         }
         else{
-            m_label1->setStyleSheet("font-size: 18px; color: blue;");
-            m_label2->setStyleSheet("font-size: 18px; color: black;");
-            if(countOfWhite())
+
+            if(countOfWhite()){
             btn->setStyleSheet(
                 "QPushButton {"
                 "   background-color: #ff6b6b;"
@@ -294,7 +317,13 @@ void MainWindow::mainWindowSlot(int i, int j)
                 "   color: white;"
                 "}"
                 );
-
+                o=btn->styleSheet();
+            }
+            if(_o!=o)
+            {
+                m_label1->setStyleSheet("font-size: 18px; color: blue;");
+                m_label2->setStyleSheet("font-size: 18px; color: black;");
+            }
         }
     }
     else{
