@@ -265,6 +265,9 @@ int size = 0;
                     QString line = m_allButtons[0][0]->styleSheet();
                     if(!line.contains("background-color: white"))
                     emit startSignal(size);
+                    else{
+                        emit onePlayerSignal(size);
+                     }
                     }
                 }
             }

@@ -10,6 +10,7 @@ Q_OBJECT
 signals:
     void buttonIsPressedSignal(int i, int j);
     void startSignal(int size);
+    void onePlayerSignal(int size);
 public slots:
     void menuSlot(int i, int j);
 public:

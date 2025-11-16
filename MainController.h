@@ -3,6 +3,7 @@ class MainWindow;
 class Menu;
 class GameLogic;
 class MenuLogic;
+class Select;
 #include <QObject>
 #include <QMainWindow>
 
@@ -12,6 +13,7 @@ class MainController : public QObject
 public slots:
 
     void mainControllerSlot(int size);
+    void onePlayerSlot(int size);
 public:
     MainController();
 private:
@@ -24,5 +26,6 @@ private:
     Menu* m_menu=nullptr;
     GameLogic* m_gameLogic = nullptr;
     MenuLogic* m_menuLogic = nullptr;
+    Select* m_select = nullptr;
     int m_n;
 };

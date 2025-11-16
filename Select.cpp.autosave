@@ -6,9 +6,11 @@
 #include <QMainWindow>
 
 Select::Select(QWidget *parent): QMainWindow{parent} {
-
+    makeConnections();
 }
 
+
+void
 void Select::selectModeSlot(int size)
 {
     QString line1 = "Easy", line2 = "Medium", line3 = "Hard", line4 = "Impossible";
@@ -86,3 +88,5 @@ void Select::selectModeSlot(int size)
     window->setLayout(layout);
     setCentralWidget(window);
 }
+
+

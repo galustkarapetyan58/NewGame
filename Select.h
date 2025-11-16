@@ -1,10 +1,19 @@
-#ifndef SELECT_H
-#define SELECT_H
+#pragma once
+#include <QMainWindow>
 
-class Select
+class QPushButton;
+class QWidget;
+
+class Select : public QMainWindow
 {
-public:
-    Select();
-};
+    Q_OBJECT
 
-#endif // SELECT_H
+public:
+    explicit Select(QWidget *parent = nullptr);
+
+signals:
+    void selectModeSignal(int size);
+
+public slots:
+    void selectModeSlot(int size);
+};
