@@ -6,9 +6,22 @@
 #include <QMainWindow>
 
 Select::Select(QWidget *parent): QMainWindow{parent} {
-
+    makeConnections();
 }
 
+
+void Select::makeConnections()
+{
+    for(int i = 0; i < m_selectButtons.size(); i++)
+    {
+        for(int j = 0; j < m_selectButtons[i].size(); j++)
+        {
+            connect(m_selectButtons[i][j], &QPushButton::clicked, this, [=](){
+                    emit selectModeSignal(size);
+            });
+        }
+    }
+}
 void Select::selectModeSlot(int size)
 {
     QString line1 = "Easy", line2 = "Medium", line3 = "Hard", line4 = "Impossible";
@@ -75,6 +88,13 @@ void Select::selectModeSlot(int size)
         "    background-color: #6A1B9A;"
         "}"
     );
+    QVector<QPushButton*> buttons;
+    buttons.push_back(easy);
+    buttons.push_back(medium);
+    buttons.push_back(hard);
+    buttons.push_back(impossible);
+    m_selectButtons.push_back(buttons);
+    buttons.clear();
     QGridLayout* grid = new QGridLayout();
     grid->addWidget(easy, 0, 0);
     grid->addWidget(medium, 0, 1);
@@ -86,3 +106,5 @@ void Select::selectModeSlot(int size)
     window->setLayout(layout);
     setCentralWidget(window);
 }
+
+

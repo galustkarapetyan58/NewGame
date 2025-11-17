@@ -3,13 +3,16 @@
 #include <QPushButton>
 #include <QWidget>
 #include <QAbstractButton>
-#include "MainWindow.h"
 
 int size = 0;
         Menu::Menu() {
             open_menu();
+            makeConnections();
     }
-
+    void Menu::makeConnections()
+    {
+        connect(this, &Menu::onePlayerSignal, this, &Menu::selectSlote);
+    }
     void Menu::open_menu()
     {
         m_window = new QWidget();
@@ -119,7 +122,7 @@ int size = 0;
         m_window->show();
 }
 
- void Menu::menuSlot(int i, int j)
+    void Menu::menuSlot(int i, int j)
     {
         if (m_allButtons[i][j] != nullptr)
         {
@@ -296,3 +299,108 @@ int size = 0;
         }
     }
 
+    void Menu::selectSlote(int size)
+    {
+        QPushButton* easy = new QPushButton("Easy"), *medium = new QPushButton("Medium"), *hard = new QPushButton("Hard"), *impossible = new QPushButton("Impossible");
+        easy->setStyleSheet(
+            "QPushButton {"
+            "    background-color: #4CAF50;"
+            "    color: white;"
+            "    font-size: 22px;"
+            "    border-radius: 15px;"
+            "    padding: 8px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: #66BB6A;"
+            "}"
+            "QPushButton:pressed {"
+            "    background-color: #388E3C;"
+            "}"
+        );
+        medium->setStyleSheet(
+            "QPushButton {"
+            "    background-color: #FFA726;"
+            "    color: white;"
+            "    font-size: 22px;"
+            "    border-radius: 15px;"
+            "    padding: 8px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: #FFB74D;"
+            "}"
+            "QPushButton:pressed {"
+            "    background-color: #FB8C00;"
+            "}"
+            );
+        hard->setStyleSheet(
+            "QPushButton {"
+            "    background-color: #EF5350;"
+            "    color: white;"
+            "    font-size: 22px;"
+            "    border-radius: 15px;"
+            "    padding: 8px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: #E57373;"
+            "}"
+            "QPushButton:pressed {"
+            "    background-color: #C62828;"
+            "}"
+
+            );
+        impossible->setStyleSheet(
+            "QPushButton {"
+            "    background-color: #8E24AA;"
+            "    color: white;"
+            "    font-size: 22px;"
+            "    border-radius: 15px;"
+            "    padding: 8px;"
+            "}"
+            "QPushButton:hover {"
+            "    background-color: #AB47BC;"
+            "}"
+            "QPushButton:pressed {"
+            "    background-color: #6A1B9A;"
+            "}"
+            );
+        m_window->close();
+        QGridLayout* grid = new QGridLayout();
+        grid->addWidget(easy, 0, 0);
+        grid->addWidget(medium, 0, 1);
+        grid->addWidget(hard, 0, 2);
+        grid->addWidget(impossible, 0, 3);
+        QVector<QPushButton*> buttons;
+        buttons.push_back(easy);
+        buttons.push_back(medium);
+        buttons.push_back(hard);
+        buttons.push_back(impossible);
+        m_selectButtons.push_back(buttons);
+        buttons.clear();
+        m_window=new QWidget();
+        m_window->setLayout(grid);
+        m_window->show();
+        for(int i = 0; i < m_selectButtons.size(); i++)
+        {
+            for(int j = 0; j < m_selectButtons[i].size(); j++)
+            {
+                connect(m_selectButtons[i][j], &QPushButton::clicked, this, [=](){
+                if(j==0){
+                    emit easySignal(size);
+                    m_window->close();
+                }
+                else if(j==1){
+                    emit mediumSignal(size);
+                    m_window->close();
+                }
+                else if(j==2){
+                    emit hardSignal(size);
+                    m_window->close();
+                }
+                else{
+                    emit impossibleSignal(size);
+                    m_window->close();
+                }
+                });
+            }
+        }
+}

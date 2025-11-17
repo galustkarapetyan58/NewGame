@@ -3,7 +3,6 @@
 #include "Menu.h"
 #include "GameLogic.h"
 #include "MenuLogic.h"
-#include "Select.h"
 
 MainController::MainController() {
 
@@ -17,7 +16,6 @@ void MainController::createMembers()
 
     m_menu = new Menu();
     m_menuLogic = new MenuLogic(m_menu);
-    m_select = new Select();
 }
 
 void MainController::mainControllerSlot(int size)
@@ -31,16 +29,37 @@ void MainController::mainControllerSlot(int size)
     m_mainWindow->show();
 }
 
-void MainController::onePlayerSlot(int size)
+void MainController::easySlote(int size)
 {
-
+    m_mainWindow=new MainWindow(size);
+    m_gameLogic = new GameLogic(m_mainWindow);
+    m_mainWindow->show();
 }
 
+void MainController::mediumSlote(int size)
+{
+    m_mainWindow=new MainWindow(size);
+    m_gameLogic = new GameLogic(m_mainWindow);
+    m_mainWindow->show();
+}
+void MainController::hardSlote(int size)
+{
+    m_mainWindow=new MainWindow(size);
+    m_gameLogic = new GameLogic(m_mainWindow);
+    m_mainWindow->show();
+}
+void MainController::impossibleSlote(int size)
+{
+    m_mainWindow=new MainWindow(size);
+    m_gameLogic = new GameLogic(m_mainWindow);
+    m_mainWindow->show();
+}
 void MainController::makeConnections(){
     connect(m_menu, &Menu::startSignal, this, &MainController::mainControllerSlot);
-
     connect(m_menu, &Menu::buttonIsPressedSignal, m_menuLogic, &MenuLogic::buttonIsPressedSlot);
     connect(m_menuLogic, &MenuLogic::menuLogicSignal, m_menu, &Menu::menuSlot);
-    connect(m_select, &Select::selectModeSignal, this, &MainController::onePlayerSlot);
-    connect(m_menu, &Menu::onePlayerSignal, m_select, &Select::selectModeSlot);
+    connect(m_menu, &Menu::easySignal, this, &MainController::easySlote);
+    connect(m_menu, &Menu::mediumSignal, this, &MainController::mediumSlote);
+    connect(m_menu, &Menu::hardSignal, this, &MainController::hardSlote);
+    connect(m_menu, &Menu::impossibleSignal, this, &MainController::impossibleSlote);
 }

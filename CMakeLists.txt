@@ -33,7 +33,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
         MainWindow.h MainWindow.cpp
         GameLogic.h GameLogic.cpp
         MenuLogic.h MenuLogic.cpp
-        Select.h Select.cpp
+
 
 
     )
