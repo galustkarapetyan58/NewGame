@@ -1,5 +1,5 @@
 #include "MainWindow.h"
-
+#include <QTimer>
 #include <QWidget>
 #include <QPushButton>
 #include <QApplication>
@@ -12,6 +12,7 @@
 #include <bits/stdc++.h>
 #include <QPointer>
 #include <QLabel>
+#include <QColor>
 MainWindow::MainWindow(int n, QWidget *parent)
     : QMainWindow{parent}, m_n(n)
 {
@@ -95,6 +96,7 @@ void MainWindow::setBlue(int x, int y)
         "}"
         );
 }
+
 void MainWindow::animateWhiteToGrey(QPushButton* button)
 {
     if (!button)
@@ -180,12 +182,14 @@ void MainWindow::setupMembers() {
         );
     QString p1 = "Player1, it is your turn", p2 = "Player2, it is your turn";
     m_label1 = new QLabel(p1), m_label2 = new QLabel(p2);
-    m_label1->setStyleSheet("font-size: 18px; color: blue;");
-    m_label2->setStyleSheet("font-size: 18px; color: black;");
+
     m_grid->addWidget(btn, row, 0);
     m_row.push_back(btn);
     m_bubbles.push_back(m_row);
     m_row.clear();
+
+    m_label1->setStyleSheet("font-size: 18px; color: blue;");
+    m_label2->setStyleSheet("font-size: 18px; color: black;");
     m_mainline->addLayout(m_grid);
     m_mainline->addWidget(m_label1);
     m_mainline->addWidget(m_label2);
@@ -212,6 +216,7 @@ bool MainWindow::isAllGrey()
 }
 
 void MainWindow::makeConnections() {
+    connect(this, &MainWindow::playersTurnSignal, this, &MainWindow::mainWindowSlot);
     m_state.resize(m_bubbles.size());
     for (int i = 0; i < m_bubbles.size(); i++) {
         m_state[i].resize(m_bubbles[i].size(), 1);
@@ -306,12 +311,13 @@ void MainWindow::mainWindowSlot(int i, int j)
             {
 
 
-                 m_label1->setStyleSheet("font-size: 18px; color: black;");
-                 m_label2->setStyleSheet("font-size: 18px; color: red;");
+                m_label1->setStyleSheet("font-size: 18px; color: black;");
+                m_label2->setStyleSheet("font-size: 18px; color: red;");
             }
         }
         else{
-
+            m_label1->setStyleSheet("font-size: 18px; color: black;");
+            m_label2->setStyleSheet("font-size: 18px; color: red;");
             if(countOfWhite()){
             btn->setStyleSheet(
                 "QPushButton {"
@@ -396,4 +402,142 @@ void MainWindow::mainWindowSlot(int i, int j)
     }
   }
 }
+}
+
+QLabel* MainWindow::getLabel() const
+{
+    return m_label1;
+}
+
+void MainWindow::animateBlueToGrey(QPushButton* button)
+{
+    if (!button) {
+        return;
+    }
+
+    QColor startColor("#a3c9f1");
+    QColor endColor("grey");
+    int duration = 500;
+
+    // Use 'this' as the parent for the animation since it's a member function now
+    QPropertyAnimation* animation = new QPropertyAnimation(button, "animatedColor", this);
+
+    // ... (Animation setup code remains the same) ...
+    button->setProperty("animatedColor", startColor);
+    animation->setDuration(duration);
+    animation->setStartValue(startColor);
+    animation->setEndValue(endColor);
+
+    // ... (valueChanged connection remains the same) ...
+
+    // 5. Connect the finish signal to apply final styles AND reset turn labels
+    QObject::connect(animation, &QPropertyAnimation::finished, this, [=]() {
+        // 5a. Apply the final, static grey style sheet to the piece
+        button->setStyleSheet(
+            "QPushButton {"
+            "background-color: grey;"
+            "font-size: 20px;"
+            "border-radius: 15px;"
+            "border: 2px solid #6ea0d6;"
+            "}"
+            "QPushButton:hover {"
+            "background-color: grey;"
+            "}"
+            );
+
+
+        if(isAllGrey())
+        {
+            m_window->close();
+            QLabel* label = new QLabel("Congratulations, Player1, You Have Won");
+            label->setAlignment(Qt::AlignCenter);
+            label->setStyleSheet("font-size: 18px; color: blue;");
+            QVBoxLayout* layout = new QVBoxLayout();
+            layout->addWidget(label);
+            QWidget* window = new QWidget;
+            window->setLayout(layout);
+            window->show();
+            return;
+        }
+
+        m_label1->setStyleSheet("font-size: 18px; color: blue;");   // Player 1 active
+        m_label2->setStyleSheet("font-size: 18px; color: black;"); // Player 2 inactive
+    });
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MainWindow::easySlote(int i, int j)
+{
+    QPushButton* checkBtn = m_bubbles[m_n][0];
+    QString l = checkBtn->styleSheet();
+
+
+    if (!l.contains("background-color: white"))
+    {
+        emit playersTurnSignal(i, j);
+        if(i==m_n)
+        QTimer::singleShot(500, this, [this]() {
+            easySlote(m_n, 0);
+        });
+    }
+    else
+    {
+        bool found_blue = false;
+        for(int x = 0; x < m_bubbles.size()-1; x++)
+        {
+            for(int y = 0; y < m_bubbles[x].size(); y++)
+            {
+                QPushButton* button = m_bubbles[x][y];
+                QString line = button->styleSheet();
+
+                // Find the first available active piece (blue)
+                if(!line.contains("white") && !line.contains("grey"))
+                {
+                    QTimer* time = new QTimer();
+                    time->setInterval(1000);
+                    time->start();
+                    animateBlueToGrey(button); // Animation handles the final turn reset
+                    m_state[x][y] = 0;
+                    found_blue = true;
+                    break;
+                }
+            }
+            if(found_blue)
+                break;
+        }
+
+        m_bubbles[m_n][0]->setStyleSheet(
+            "QPushButton {"
+            "   background-color: #ff6b6b;"
+            "   color: white;"
+            "   font-size: 24px;"
+            "   border-radius: 15px;"
+            "   border: 2px solid #ff4c4c;"
+            "}"
+            "QPushButton:hover {"
+            "   background-color: #ff7b7b;"
+            "   color: white;"
+            "}"
+            "QPushButton:pressed {"
+            "   background-color: #ff4c4c;"
+            "   color: white;"
+            "}"
+            );
+        // No need for explicit stylesheet swap here; animateBlueToGrey::finished handles it.
+    }
+}
+
+void MainWindow::mediumSlote(int i, int j)
+{
+
+}
+
+void MainWindow::hardSlote(int i, int j)
+{
+
+}
+
+void MainWindow::impossibleSlote(int i, int j)
+{
+
 }

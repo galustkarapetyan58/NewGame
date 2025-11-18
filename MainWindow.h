@@ -9,6 +9,7 @@
 #include <QGraphicsColorizeEffect>
 #include <QPropertyAnimation>
 #include <QLabel>
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -17,6 +18,7 @@ public:
     explicit MainWindow(int n, QWidget *parent = nullptr);
     const QVector<QVector<QPushButton*>>& getBubbles() const { return m_bubbles; }
      const QVector<QVector<bool>>& getState() const { return m_state; }
+    QLabel* getLabel() const;
     bool isAllGrey();
      int countOfWhite();
      int countOfGrey();
@@ -32,9 +34,15 @@ private:
     void animateHighlight(QPushButton* btn);
 signals:
     void buttonPressedSignal(int i, int j);
+    void playersTurnSignal(int i, int j);
 public slots:
     void mainWindowSlot(int i, int j);
+    void easySlote(int i, int j);
+    void mediumSlote(int i, int j);
+    void hardSlote(int i, int j);
+    void impossibleSlote(int i, int j);
 private:
+    void animateBlueToGrey(QPushButton* button);
     void createMembers();
     void setupMembers();
     void makeConnections();
@@ -45,8 +53,8 @@ private:
     QVector<QVector<QPushButton*>> m_bubbles;
     QVector<QPushButton*> m_row;
     QVector<QVector<bool>> m_state;
-    QLabel* m_label1, *m_label2;
     int m_n;
+     QLabel* m_label1, *m_label2;
 
 };
 

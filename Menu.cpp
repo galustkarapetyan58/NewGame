@@ -269,6 +269,7 @@ int size = 0;
                     if(!line.contains("background-color: white"))
                     emit startSignal(size);
                     else{
+                        is1pActive=true;
                         emit onePlayerSignal(size);
                      }
                     }

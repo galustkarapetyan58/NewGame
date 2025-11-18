@@ -20,6 +20,7 @@ public slots:
     void selectSlote(int size);
 public:
     const QVector<QVector<QPushButton*>>& getButtons() const { return m_allButtons; }
+     const bool& isOnePlayer() const { return is1pActive; }
     Menu();
 private:
     QVector<int> m_members;
@@ -29,4 +30,5 @@ private:
     int m_n=2, m_count = 7;
     void open_menu();
     void makeConnections();
+    bool is1pActive=false;
 };

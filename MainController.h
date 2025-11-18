@@ -13,10 +13,10 @@ class MainController : public QObject
 public slots:
 
     void mainControllerSlot(int size);
-    void easySlote(int size);
-    void mediumSlote(int size);
-    void hardSlote(int size);
-    void impossibleSlote(int size);
+    void mainEasySlote(int size);
+    void mainMediumSlote(int size);
+    void mainHardSlote(int size);
+    void mainImpossibleSlote(int size);
 public:
     MainController();
 private:

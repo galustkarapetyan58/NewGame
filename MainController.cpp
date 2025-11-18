@@ -29,37 +29,50 @@ void MainController::mainControllerSlot(int size)
     m_mainWindow->show();
 }
 
-void MainController::easySlote(int size)
+void MainController::mainEasySlote(int size)
 {
     m_mainWindow=new MainWindow(size);
     m_gameLogic = new GameLogic(m_mainWindow);
+    connect(m_mainWindow, &MainWindow::buttonPressedSignal,
+            m_gameLogic, &GameLogic::gameIsEasySlot);
+    connect(m_gameLogic, &GameLogic::gameIsEasySignal, m_mainWindow, &MainWindow::easySlote);
     m_mainWindow->show();
 }
 
-void MainController::mediumSlote(int size)
+void MainController::mainMediumSlote(int size)
 {
     m_mainWindow=new MainWindow(size);
     m_gameLogic = new GameLogic(m_mainWindow);
+    connect(m_mainWindow, &MainWindow::buttonPressedSignal,
+            m_gameLogic, &GameLogic::gameIsMediumSlot);
+    connect(m_gameLogic, &GameLogic::gameIsMediumSignal, m_mainWindow, &MainWindow::mediumSlote);
     m_mainWindow->show();
 }
-void MainController::hardSlote(int size)
+void MainController::mainHardSlote(int size)
 {
     m_mainWindow=new MainWindow(size);
     m_gameLogic = new GameLogic(m_mainWindow);
+    connect(m_mainWindow, &MainWindow::buttonPressedSignal,
+            m_gameLogic, &GameLogic::gameIsHardSlot);
+    connect(m_gameLogic, &GameLogic::gameIsHardSignal, m_mainWindow, &MainWindow::hardSlote);
     m_mainWindow->show();
 }
-void MainController::impossibleSlote(int size)
+void MainController::mainImpossibleSlote(int size)
 {
     m_mainWindow=new MainWindow(size);
     m_gameLogic = new GameLogic(m_mainWindow);
+    connect(m_mainWindow, &MainWindow::buttonPressedSignal,
+            m_gameLogic, &GameLogic::gameIsImpossibleSlot);
+    connect(m_gameLogic, &GameLogic::gameIsImpossibleSignal, m_mainWindow, &MainWindow::impossibleSlote);
     m_mainWindow->show();
 }
+
 void MainController::makeConnections(){
     connect(m_menu, &Menu::startSignal, this, &MainController::mainControllerSlot);
     connect(m_menu, &Menu::buttonIsPressedSignal, m_menuLogic, &MenuLogic::buttonIsPressedSlot);
     connect(m_menuLogic, &MenuLogic::menuLogicSignal, m_menu, &Menu::menuSlot);
-    connect(m_menu, &Menu::easySignal, this, &MainController::easySlote);
-    connect(m_menu, &Menu::mediumSignal, this, &MainController::mediumSlote);
-    connect(m_menu, &Menu::hardSignal, this, &MainController::hardSlote);
-    connect(m_menu, &Menu::impossibleSignal, this, &MainController::impossibleSlote);
+    connect(m_menu, &Menu::easySignal, this, &MainController::mainEasySlote);
+    connect(m_menu, &Menu::mediumSignal, this, &MainController::mainMediumSlote);
+    connect(m_menu, &Menu::hardSignal, this, &MainController::mainHardSlote);
+    connect(m_menu, &Menu::impossibleSignal, this, &MainController::mainImpossibleSlote);
 }
