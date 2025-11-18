@@ -12,7 +12,7 @@ bool GameLogic::ok()
     return m_mainWindow->isAllGrey();
 }
 void GameLogic::buttonPressedSlot(int i, int j){
-
+    QString l = m_bubbles[i][j]->text();
     int white = m_mainWindow->countOfWhite(), grey = m_mainWindow->countOfGrey();
     m_state = m_mainWindow->getState();
     if(!ok() && white+grey!=(m_state.size()-1)*(m_state.size()-1))
@@ -22,6 +22,7 @@ void GameLogic::buttonPressedSlot(int i, int j){
       }
     }
     else{
+        if(l.contains("✔")){
         m_mainWindow->close();
         QVBoxLayout* layout = new QVBoxLayout();
         QLabel* label;
@@ -45,6 +46,10 @@ void GameLogic::buttonPressedSlot(int i, int j){
         layout->addWidget(label);
         window->setLayout(layout);
         window->show();
+    }
+        else{
+            emit gameSignal(i, j);
+    }
     }
 }
 

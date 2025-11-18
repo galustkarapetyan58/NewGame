@@ -419,20 +419,17 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
     QColor endColor("grey");
     int duration = 500;
 
-    // Use 'this' as the parent for the animation since it's a member function now
+
     QPropertyAnimation* animation = new QPropertyAnimation(button, "animatedColor", this);
 
-    // ... (Animation setup code remains the same) ...
     button->setProperty("animatedColor", startColor);
     animation->setDuration(duration);
     animation->setStartValue(startColor);
     animation->setEndValue(endColor);
 
-    // ... (valueChanged connection remains the same) ...
 
-    // 5. Connect the finish signal to apply final styles AND reset turn labels
+
     QObject::connect(animation, &QPropertyAnimation::finished, this, [=]() {
-        // 5a. Apply the final, static grey style sheet to the piece
         button->setStyleSheet(
             "QPushButton {"
             "background-color: grey;"
@@ -460,8 +457,8 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
             return;
         }
 
-        m_label1->setStyleSheet("font-size: 18px; color: blue;");   // Player 1 active
-        m_label2->setStyleSheet("font-size: 18px; color: black;"); // Player 2 inactive
+        m_label1->setStyleSheet("font-size: 18px; color: blue;");
+        m_label2->setStyleSheet("font-size: 18px; color: black;");
     });
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -470,8 +467,6 @@ void MainWindow::easySlote(int i, int j)
 {
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
-
-
     if (!l.contains("background-color: white"))
     {
         emit playersTurnSignal(i, j);
@@ -489,14 +484,9 @@ void MainWindow::easySlote(int i, int j)
             {
                 QPushButton* button = m_bubbles[x][y];
                 QString line = button->styleSheet();
-
-                // Find the first available active piece (blue)
-                if(!line.contains("white") && !line.contains("grey"))
+                if(!line.contains("grey"))
                 {
-                    QTimer* time = new QTimer();
-                    time->setInterval(1000);
-                    time->start();
-                    animateBlueToGrey(button); // Animation handles the final turn reset
+                    animateBlueToGrey(button);
                     m_state[x][y] = 0;
                     found_blue = true;
                     break;
@@ -523,7 +513,6 @@ void MainWindow::easySlote(int i, int j)
             "   color: white;"
             "}"
             );
-        // No need for explicit stylesheet swap here; animateBlueToGrey::finished handles it.
     }
 }
 
