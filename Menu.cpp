@@ -353,16 +353,19 @@ int size = 0;
             "QPushButton {"
             "    background-color: #8E24AA;"
             "    color: white;"
-            "    font-size: 22px;"
-            "    border-radius: 15px;"
-            "    padding: 8px;"
+            "    font-size: 24px;"
+            "    border-radius: 20px;"
+            "    padding: 10px;"
+            "    border: 2px solid #D500F9;"
             "}"
             "QPushButton:hover {"
-            "    background-color: #AB47BC;"
+            "    background-color: #9C27B0;"
+            "    border: 2px solid #E040FB;"
             "}"
             "QPushButton:pressed {"
             "    background-color: #6A1B9A;"
             "}"
+
             );
         m_window->close();
         QGridLayout* grid = new QGridLayout();

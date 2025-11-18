@@ -445,7 +445,7 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
 
         if(isAllGrey())
         {
-            m_window->close();
+            this->hide();
             QLabel* label = new QLabel("Congratulations, Player1, You Have Won");
             label->setAlignment(Qt::AlignCenter);
             label->setStyleSheet("font-size: 18px; color: blue;");
@@ -467,6 +467,8 @@ void MainWindow::easySlote(int i, int j)
 {
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
+
+
     if (!l.contains("background-color: white"))
     {
         emit playersTurnSignal(i, j);
