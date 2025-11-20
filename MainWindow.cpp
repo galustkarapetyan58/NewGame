@@ -463,12 +463,11 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
+
 void MainWindow::easySlote(int i, int j)
 {
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
-
-
     if (!l.contains("background-color: white"))
     {
         emit playersTurnSignal(i, j);
@@ -497,30 +496,107 @@ void MainWindow::easySlote(int i, int j)
             if(found_blue)
                 break;
         }
-
-        m_bubbles[m_n][0]->setStyleSheet(
-            "QPushButton {"
-            "   background-color: #ff6b6b;"
-            "   color: white;"
-            "   font-size: 24px;"
-            "   border-radius: 15px;"
-            "   border: 2px solid #ff4c4c;"
-            "}"
-            "QPushButton:hover {"
-            "   background-color: #ff7b7b;"
-            "   color: white;"
-            "}"
-            "QPushButton:pressed {"
-            "   background-color: #ff4c4c;"
-            "   color: white;"
-            "}"
-            );
+        QTimer::singleShot(1000, this, [this]()
+        {
+            checkboxToWhite();
+        });
     }
+}
+
+void MainWindow::checkboxToWhite()
+{
+    m_bubbles[m_n][0]->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #ff6b6b;"
+        "   color: white;"
+        "   font-size: 24px;"
+        "   border-radius: 15px;"
+        "   border: 2px solid #ff4c4c;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #ff7b7b;"
+        "   color: white;"
+        "}"
+        "QPushButton:pressed {"
+        "   background-color: #ff4c4c;"
+        "   color: white;"
+        "}"
+        );
 }
 
 void MainWindow::mediumSlote(int i, int j)
 {
+    QPushButton* checkBtn = m_bubbles[m_n][0];
+    QString l = checkBtn->styleSheet();
+    if (!l.contains("background-color: white"))
+    {
+        emit playersTurnSignal(i, j);
+        if(i==m_n)
+            QTimer::singleShot(500, this, [this]() {
+                mediumSlote(m_n, 0);
+            });
+    }
+    else
+    {
+        QTimer::singleShot(500, this, [this](){
+            rowToGrey();
+        });
+        QTimer::singleShot(1500, this, [this](){
+            checkboxToWhite();
+        });
+    }
+}
 
+void MainWindow::rowToGrey()
+{
+    int i = -1;
+    bool ok = true;
+    for(int x = 0; x < m_bubbles.size()-1; x++)
+    {
+        for(int y = 0; y < m_bubbles[x].size(); y++)
+        {
+            QString line = m_bubbles[x][y]->styleSheet();
+            if(line.contains("grey"))
+            {
+                ok=false;
+                break;
+            }
+        }
+        if(ok)
+        {
+            i=x;
+            break;
+        }
+        else{
+            ok=true;
+        }
+    }
+    if(i!=-1)
+    {
+        for(int x = 0; x < m_bubbles[i].size(); x++)
+        {
+            animateBlueToGrey(m_bubbles[i][x]);
+        }
+    }
+    else{
+        bool animated = false;
+        for(int x = 0; x < m_bubbles.size()-1; x++)
+        {
+            for(int y = 0; y < m_bubbles[x].size(); y++)
+            {
+                QString line = m_bubbles[x][y]->styleSheet();
+                if(!line.contains("grey"))
+                {
+                    animateBlueToGrey(m_bubbles[x][y]);
+                    m_state[x][y]=0;
+                    animated=true;
+                    break;
+                }
+            }
+            if(animated)
+                break;
+        }
+    }
 }
 
 void MainWindow::hardSlote(int i, int j)

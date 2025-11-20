@@ -17,11 +17,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(int n, QWidget *parent = nullptr);
     const QVector<QVector<QPushButton*>>& getBubbles() const { return m_bubbles; }
-     const QVector<QVector<bool>>& getState() const { return m_state; }
+    const QVector<QVector<bool>>& getState() const { return m_state; }
     QLabel* getLabel() const;
     bool isAllGrey();
-     int countOfWhite();
-     int countOfGrey();
+    int countOfWhite();
+    int countOfGrey();
+    void checkboxToWhite();
+    void rowToGrey();
 private:
 
     bool isBlue(int x, int y);
