@@ -7,6 +7,7 @@ class GameLogic : public QObject
 {
     Q_OBJECT
 signals:
+    void gameOverSignal();
     void gameSignal(int i, int j);
     void gameIsEasySignal(int i, int j);
     void gameIsMediumSignal(int i, int j);
@@ -15,6 +16,7 @@ signals:
 public:
    explicit GameLogic(MainWindow* mainwindow);
     bool ok();
+   void gameIsOver();
 public slots:
     void buttonPressedSlot(int i, int j);
     void gameIsEasySlot(int i, int j);
@@ -25,6 +27,6 @@ private:
     MainWindow* m_mainWindow;
     QVector<QVector<bool>> m_state;
     QVector<QVector<QPushButton*>> m_bubbles;
-
+    int m_white, m_grey;
 };
 

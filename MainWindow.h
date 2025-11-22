@@ -24,6 +24,7 @@ public:
     int countOfGrey();
     void checkboxToWhite();
     void rowToGrey();
+    void hardBotTime();
 private:
 
     bool isBlue(int x, int y);
@@ -38,6 +39,7 @@ signals:
     void buttonPressedSignal(int i, int j);
     void playersTurnSignal(int i, int j);
 public slots:
+    void gameOverSlot();
     void mainWindowSlot(int i, int j);
     void easySlote(int i, int j);
     void mediumSlote(int i, int j);
@@ -55,9 +57,10 @@ private:
     QVector<QVector<QPushButton*>> m_bubbles;
     QVector<QPushButton*> m_row;
     QVector<QVector<bool>> m_state;
-    int m_n;
+    int m_n, m_cnt;
      QLabel* m_label1, *m_label2;
-
+    bool m_gameEnded;
+    std::vector<std::vector<int>> m_current;
 };
 
 

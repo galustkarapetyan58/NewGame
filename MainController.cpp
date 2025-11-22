@@ -75,4 +75,5 @@ void MainController::makeConnections(){
     connect(m_menu, &Menu::mediumSignal, this, &MainController::mainMediumSlote);
     connect(m_menu, &Menu::hardSignal, this, &MainController::mainHardSlote);
     connect(m_menu, &Menu::impossibleSignal, this, &MainController::mainImpossibleSlote);
+    connect(m_gameLogic, &GameLogic::gameOverSignal, m_mainWindow, &MainWindow::gameOverSlot);
 }

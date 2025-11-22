@@ -16,11 +16,16 @@
 MainWindow::MainWindow(int n, QWidget *parent)
     : QMainWindow{parent}, m_n(n)
 {
+    m_gameEnded=false;
     createMembers();
     setupMembers();
     makeConnections();
+    std::vector<int> a = {m_n};
+    for(int i = 0; i < m_n; i++)
+        m_current.push_back(a);
+    a.clear();
+    m_cnt=1;
 }
-
 void MainWindow::createMembers() {
     m_grid = new QGridLayout();
     m_mainline = new QVBoxLayout();
@@ -262,6 +267,7 @@ int MainWindow::countOfGrey()
 }
 void MainWindow::mainWindowSlot(int i, int j)
 {
+    int cnt = countOfGrey();
     QPushButton* btn = m_bubbles[i][j];
     QString s = btn->text();
     QString o = btn->styleSheet();
@@ -278,6 +284,7 @@ void MainWindow::mainWindowSlot(int i, int j)
                 {
                     m_state[x][y] = 0;
                     animateWhiteToGrey(button);
+                    cnt++;
                 }
                 else
                 {
@@ -285,6 +292,12 @@ void MainWindow::mainWindowSlot(int i, int j)
                 }
             }
         }
+        if(cnt==(m_bubbles.size()-1)*(m_bubbles.size()-1))
+        {
+            gameOverSlot();
+            m_gameEnded=true;
+        }
+        else{
         if(!o.contains("background-color: white"))
         {
             if(countOfWhite()){
@@ -343,6 +356,7 @@ void MainWindow::mainWindowSlot(int i, int j)
                 m_label1->setStyleSheet("font-size: 18px; color: blue;");
                 m_label2->setStyleSheet("font-size: 18px; color: black;");
             }
+        }
         }
     }
     else{
@@ -407,6 +421,34 @@ void MainWindow::mainWindowSlot(int i, int j)
 QLabel* MainWindow::getLabel() const
 {
     return m_label1;
+}
+void MainWindow::gameOverSlot()
+{
+    if(m_gameEnded)
+        return;
+    this->close();
+    QVBoxLayout* layout = new QVBoxLayout();
+    QLabel* label;
+    QLabel* label1 = this->getLabel();
+    QString line = label1->styleSheet();
+    QString edit = "";
+    if(line.contains("blue"))
+    {
+        edit = "Congratulations, Player2, You Have Won";
+        label = new QLabel(edit);
+        label->setAlignment(Qt::AlignCenter);
+        label->setStyleSheet("font-size: 18px; color: red;");
+    }
+    else{
+        edit = "Congratulations, Player1, You Have Won";
+        label = new QLabel(edit);
+        label->setAlignment(Qt::AlignCenter);
+        label->setStyleSheet("font-size: 18px; color: blue;");
+    }
+    QWidget* window = new QWidget;
+    layout->addWidget(label);
+    window->setLayout(layout);
+    window->show();
 }
 
 void MainWindow::animateBlueToGrey(QPushButton* button)
@@ -551,6 +593,18 @@ void MainWindow::rowToGrey()
 {
     int i = -1;
     bool ok = true;
+    int cnt = 0;
+    for(int x = 0; x < m_bubbles.size()-1; x++)
+    {
+        for(int y = 0; y < m_bubbles[x].size(); y++)
+        {
+            QString line = m_bubbles[x][y]->styleSheet();
+            if(!line.contains("grey"))
+            {
+                cnt++;
+            }
+        }
+    }
     for(int x = 0; x < m_bubbles.size()-1; x++)
     {
         for(int y = 0; y < m_bubbles[x].size(); y++)
@@ -579,29 +633,148 @@ void MainWindow::rowToGrey()
         }
     }
     else{
-        bool animated = false;
-        for(int x = 0; x < m_bubbles.size()-1; x++)
+        if(cnt==3)
         {
-            for(int y = 0; y < m_bubbles[x].size(); y++)
+            bool ok = false;
+            int l = -1, r = -1, row = -1;
+            for(int x = 0; x < m_bubbles.size()-1; x++)
             {
-                QString line = m_bubbles[x][y]->styleSheet();
-                if(!line.contains("grey"))
+                for(int y = 1; y < m_bubbles[x].size(); y++)
                 {
-                    animateBlueToGrey(m_bubbles[x][y]);
-                    m_state[x][y]=0;
-                    animated=true;
-                    break;
+                    QString line1 = m_bubbles[x][y]->styleSheet(), line2 = m_bubbles[x][y-1]->styleSheet();
+                    if(!line1.contains("grey") && !line2.contains("grey"))
+                    {
+                        ok=true;
+                        row = x;
+                        l=y-1, r = y;
+                        break;
+                    }
                 }
             }
-            if(animated)
-                break;
+            if(ok)
+            {
+                animateBlueToGrey(m_bubbles[row][l]);
+                animateBlueToGrey(m_bubbles[row][r]);
+                return;
+            }
+        }
+        else{
+            bool found_blue = false;
+            for(int x = 0; x < m_bubbles.size()-1; x++)
+            {
+                for(int y = 0; y < m_bubbles[x].size(); y++)
+                {
+                    QPushButton* button = m_bubbles[x][y];
+                    QString line = button->styleSheet();
+                    if(!line.contains("grey"))
+                    {
+                        animateBlueToGrey(button);
+                        m_state[x][y] = 0;
+                        found_blue = true;
+                        break;
+                    }
+                }
+                if(found_blue)
+                    break;
+            }
         }
     }
 }
 
+
 void MainWindow::hardSlote(int i, int j)
 {
+    m_cnt++;
+    QPushButton* checkBtn = m_bubbles[m_n][0];
+    QString l = checkBtn->styleSheet();
+    if (!l.contains("background-color: white"))
+    {
+        emit playersTurnSignal(i, j);
+        if(i==m_n)
+            QTimer::singleShot(500, this, [this]() {
+                hardSlote(m_n, 0);
+            });
+    }
+    else
+    {
+        QTimer::singleShot(500, this, [this](){
+            hardBotTime();
+        });
+        QTimer::singleShot(1500, this, [this](){
+            checkboxToWhite();
+        });
+    }
+}
 
+void MainWindow::hardBotTime()
+{
+    if(m_cnt)
+    {
+     std::vector<std::vector<int>> cur;
+     for(int i = 0; i < m_n; i++)
+     {
+         std::vector<int> c;
+         int cnt = 0;
+         QString line1="", line2="", line3 = "", line4 = "";
+         int m = 1;
+         for(int j = 1; j < m_n; j++)
+         {
+            line1=m_bubbles[i][j]->styleSheet(), line2 = m_bubbles[i][j-1]->styleSheet();
+            if(line1==line2 && line1.contains("#a3c9f1"))
+            {
+                m++;
+                cnt=m;
+            }
+            else if(j<m_n-1 && line1.contains("#a3c9f1") && line2!=line1)
+            {
+                cnt=m;
+            }
+            else{
+                if(cnt)
+                c.push_back(cnt);
+                cnt=0;
+                m=1;
+            }
+         }
+         line1=m_bubbles[i][m_n-1]->styleSheet(), line2 = m_bubbles[i][m_n-2]->styleSheet(), line3 = m_bubbles[i][0]->styleSheet(), line4 = m_bubbles[i][1]->styleSheet();
+         if(line1.contains("#a3c9f1") && line1!=line2)
+         cnt=1;
+         if(cnt!=0)
+         c.push_back(cnt);
+         if(line3.contains("#a3c9f1") && line3!=line4)
+             c.insert(c.begin(), 1);
+         cur.push_back(c);
+     }
+     for(int i = 0; i < cur.size(); i++)
+     {
+          for(int j = 0; j < cur[i].size(); j++)
+          {
+             std::cout << cur[i][j] << " ";
+          }
+          std::cout << std::endl;
+     }
+    }
+    else{
+
+        bool found_blue = false;
+        for(int x = 0; x < m_bubbles.size()-1; x++)
+        {
+            for(int y = 0; y < m_bubbles[x].size(); y++)
+            {
+                QPushButton* button = m_bubbles[x][y];
+                QString line = button->styleSheet();
+                if(!line.contains("grey"))
+                {
+                    animateBlueToGrey(button);
+                    m_state[x][y] = 0;
+                    found_blue = true;
+                    break;
+                }
+            }
+            if(found_blue)
+                break;
+        }
+    }
 }
 
 void MainWindow::impossibleSlote(int i, int j)
