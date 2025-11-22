@@ -80,5 +80,15 @@ void GameLogic::gameIsHardSlot(int i, int j)
 
 void GameLogic::gameIsImpossibleSlot(int i, int j)
 {
-    emit gameIsImpossibleSignal(i, j);
+    QString l = m_bubbles[i][j]->styleSheet();
+    m_state = m_mainWindow->getState();
+    if(m_white+m_grey!=(m_state.size()-1)*(m_state.size()-1))
+    {
+        if (m_state[i][j]) {
+            emit gameIsImpossibleSignal(i, j);
+        }
+    }
+    else{
+        emit gameOverSignal();
+    }
 }

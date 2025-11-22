@@ -25,6 +25,7 @@ public:
     void checkboxToWhite();
     void rowToGrey();
     void hardBotTime();
+    void impossibleBotTime();
 private:
 
     bool isBlue(int x, int y);
