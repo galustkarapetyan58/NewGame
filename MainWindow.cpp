@@ -322,8 +322,6 @@ void MainWindow::mainWindowSlot(int i, int j)
             }
             if(_o!=o)
             {
-
-
                 m_label1->setStyleSheet("font-size: 18px; color: black;");
                 m_label2->setStyleSheet("font-size: 18px; color: red;");
             }
@@ -356,7 +354,7 @@ void MainWindow::mainWindowSlot(int i, int j)
                 m_label1->setStyleSheet("font-size: 18px; color: blue;");
                 m_label2->setStyleSheet("font-size: 18px; color: black;");
             }
-        }
+         }
         }
     }
     else{
@@ -700,7 +698,7 @@ void MainWindow::hardSlote(int i, int j)
         QTimer::singleShot(500, this, [this](){
             hardBotTime();
         });
-        QTimer::singleShot(1500, this, [this](){
+        QTimer::singleShot(3000, this, [this](){
             checkboxToWhite();
         });
     }
@@ -731,7 +729,9 @@ void MainWindow::hardBotTime()
             }
             else{
                 if(cnt)
-                c.push_back(cnt);
+                {
+                 c.push_back(cnt);
+                }
                 cnt=0;
                 m=1;
             }
@@ -739,41 +739,118 @@ void MainWindow::hardBotTime()
          line1=m_bubbles[i][m_n-1]->styleSheet(), line2 = m_bubbles[i][m_n-2]->styleSheet(), line3 = m_bubbles[i][0]->styleSheet(), line4 = m_bubbles[i][1]->styleSheet();
          if(line1.contains("#a3c9f1") && line1!=line2)
          cnt=1;
-         if(cnt!=0)
          c.push_back(cnt);
          if(line3.contains("#a3c9f1") && line3!=line4)
-             c.insert(c.begin(), 1);
+         {
+          c.insert(c.begin(), 1);
+         }
          cur.push_back(c);
      }
+     for(int i = 0; i < m_current.size(); i++)
+     {
+         for(int j = 0; j < m_current[i].size(); j++)
+         {
+             std::cout << m_current[i][j] << " ";
+         }
+         std::cout << std::endl;
+     }
+     std::cout << std::endl;
      for(int i = 0; i < cur.size(); i++)
      {
-          for(int j = 0; j < cur[i].size(); j++)
-          {
+         for(int j = 0; j < cur[i].size(); j++)
+         {
              std::cout << cur[i][j] << " ";
-          }
-          std::cout << std::endl;
+         }
+         std::cout << std::endl;
+     }
+     std::vector<std::vector<int>> p;
+     int Xor = 0;
+     for(int i = 0; i < m_current.size(); i++)
+     {
+         for(int j = 0; j < m_current[i].size(); j++)
+         {
+             Xor^=m_current[i][j];
+         }
+     }
+     if(Xor!=0)
+     {
+         std::map<std::vector<int>, int> count;
+         for(int i = 0; i < cur.size(); i++)
+         {
+            std::vector<int> c(m_n, 1);
+            if(m_current[i]!=cur[i])
+            {
+                 for(int j = 0; j < cur[i].size(); j++)
+                 {
+                    QString line = m_bubbles[i][j]->styleSheet();
+                    if(line.contains("grey") || line.contains("white"))
+                    {
+                        c[j]=0;
+                    }
+                 }
+            }
+            count[c]++;
+            p.push_back(c);
+         }
+         for(int i = 0; i < cur.size(); i++)
+         {
+             if(count[p[i]]%2!=0)
+             {
+                 bool c = false;
+                 for(int j = 0; j < cur.size(); j++)
+                 {
+                     if(p[i]!=p[j])
+                     {
+                         int cnt1 = 0, cnt2 = 0;
+                         for(int k = 0; k < cur.size(); k++)
+                         {
+                             if(p[i][k]==1)
+                             {
+                                 cnt1++;
+                             }
+                             if(p[j][k]==1)
+                             {
+                                 cnt2++;
+                             }
+                         }
+                         if(cnt1>cnt2)
+                         {
+                             p[i]=p[j];
+                             c=true;
+                             break;
+                         }
+                         else{
+                             p[j]=p[i];
+                             c=true;
+                             break;
+                         }
+                     }
+                 }
+                 if(c)
+                     break;
+             }
+         }
+         for(int i = 0; i < m_bubbles.size()-1; i++)
+         {
+             for(int j = 0; j < m_bubbles[i].size(); j++)
+             {
+                 QString line = m_bubbles[i][j]->styleSheet();
+                 if(p[i][j]==0 && !line.contains("white") && !line.contains("grey"))
+                 {
+                     animateBlueToGrey(m_bubbles[i][j]);
+                     m_state[i][j]=0;
+                 }
+             }
+         }
+         m_current=cur;
+     }
+     else{
+         easySlote(m_n, 0);
      }
     }
     else{
 
-        bool found_blue = false;
-        for(int x = 0; x < m_bubbles.size()-1; x++)
-        {
-            for(int y = 0; y < m_bubbles[x].size(); y++)
-            {
-                QPushButton* button = m_bubbles[x][y];
-                QString line = button->styleSheet();
-                if(!line.contains("grey"))
-                {
-                    animateBlueToGrey(button);
-                    m_state[x][y] = 0;
-                    found_blue = true;
-                    break;
-                }
-            }
-            if(found_blue)
-                break;
-        }
+        easySlote(m_n, 0);
     }
 }
 
