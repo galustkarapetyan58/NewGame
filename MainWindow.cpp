@@ -740,15 +740,15 @@ void MainWindow::impossibleSlote(int i, int j)
 
 void MainWindow::impossibleBotTime()
 {
-    int c = 0;
+    int c = 0, r = 0;
     std::vector<std::vector<int>> cur;
-    for(int i = 0; i < m_current.size(); i++)
+    for(int i = 0; i < m_n; i++)
     {
         std::vector<int> c;
         int cnt = 0;
         QString line1="", line2="", line3 = "", line4 = "";
         int m = 1;
-        for(int j = 1; j < m_current.size(); j++)
+        for(int j = 1; j < m_n; j++)
         {
             line1=m_bubbles[i][j]->styleSheet(), line2 = m_bubbles[i][j-1]->styleSheet();
             if(line1==line2 && line1.contains("#a3c9f1"))
@@ -772,7 +772,6 @@ void MainWindow::impossibleBotTime()
         line1=m_bubbles[i][m_n-1]->styleSheet(), line2 = m_bubbles[i][m_n-2]->styleSheet(), line3 = m_bubbles[i][0]->styleSheet(), line4 = m_bubbles[i][1]->styleSheet();
         if(line1.contains("#a3c9f1") && line1!=line2)
             cnt=1;
-        if(cnt!=0)
             c.push_back(cnt);
         if(line3.contains("#a3c9f1") && line3!=line4)
         {
@@ -792,7 +791,15 @@ void MainWindow::impossibleBotTime()
             Xor^=cur[i][j];
         }
     }
-
+    for(int i = 0; i < cur.size(); i++)
+    {
+        for(int j = 0; j < cur[i].size(); j++)
+        {
+            std::cout << cur[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
     for(int i = 0; i < cur.size(); i++)
     {
         for(int j = 0; j < cur[i].size(); j++)
@@ -801,6 +808,10 @@ void MainWindow::impossibleBotTime()
             {
                 ind = i;
                 c++;
+            }
+            if(cur[i][j]==0)
+            {
+                r++;
             }
         }
     }
@@ -847,8 +858,9 @@ void MainWindow::impossibleBotTime()
                             cnt2++;
                         }
                     }
-                    if(cnt1>cnt2 && std::min(cnt1, cnt2)!=0)
+                    if(cnt1>cnt2)
                     {
+                        if(r!=cur.size()-1)
                         p[i]=p[j];
                         c=true;
                         break;
@@ -873,6 +885,7 @@ void MainWindow::impossibleBotTime()
     }
     if(c==1)
     {
+        if(r!=cur.size()-1){
         if(ind!=-1)
         {
             if(p[ind][0]!=0)
@@ -887,9 +900,30 @@ void MainWindow::impossibleBotTime()
                 }
             }
         }
+        }
+        else{
+            std::cout << r << std::endl;
+            int sum = 0;
+            for(int j = 0; j < m_n; j++)
+            {
+                sum+=p[ind][j];
+            }
+            for(int j = 0; j < m_n; j++)
+            {
+                if(sum>1)
+                {
+                 if(p[ind][j]==1)
+                    {
+                        sum--;
+                     p[ind][j]=0;
+                    }
+                }
+            }
+        }
     }
     if(Xor!=0)
     {
+        bool good = false;
         for(int i = 0; i < m_n; i++)
         {
             for(int j = 0; j < m_n; j++)
@@ -899,8 +933,11 @@ void MainWindow::impossibleBotTime()
                 {
                     animateBlueToGrey(m_bubbles[i][j]);
                     m_state[i][j]=0;
+                    good = true;
                 }
             }
+            if(good)
+                break;
         }
         m_current=cur;
     }
