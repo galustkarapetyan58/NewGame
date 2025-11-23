@@ -818,10 +818,6 @@ void MainWindow::impossibleBotTime()
     for(int i = 0; i < cur.size(); i++)
     {
         std::vector<int> c(m_n, 1);
-        if(m_current[i]!=cur[i])
-        {
-            index=i;
-        }
         p.push_back(c);
     }
     for(int i = 0; i < m_n; i++)
@@ -838,7 +834,10 @@ void MainWindow::impossibleBotTime()
     for(int i = 0; i < m_n; i++)
     {
         if(count[p[i]]%2!=0)
+        {
             odd++;
+            index=i;
+        }
     }
     for(int i = 0; i < m_n; i++)
     {
@@ -854,35 +853,30 @@ void MainWindow::impossibleBotTime()
         if(good)
             onlyZero++;
     }
+    if(odd==1)
+    {
+        int jim = -1;
+        for(int j = 0; j < m_n; j++)
+        {
+            if(p[index][j]!=0)
+            {
+                jim=j;
+                break;
+            }
+        }
+        for(int j = jim; j < m_n; j++)
+        {
+            p[index][j]=0;
+        }
+    }
+    if(odd==1)
+    {
+        easySlote(m_n, 0);
+    }
+    else{
     odd%=2;
     if(co==1)
     {
-        if(odd)
-        {
-            std::cout << "YES" << std::endl;
-            for(int j = 0; j < cur[index].size(); j++)
-            {
-                std::cout << cur[index][j] << " ";
-            }
-            std::cout << std::endl;
-            if(cur[index].size()==1)
-            {
-                int jim = -1;
-                for(int j = 0; j < m_n; j++)
-                {
-                    if(p[index][j]!=0)
-                    {
-                        jim=j;
-                        break;
-                    }
-                }
-                for(int j = jim; j < m_n; j++)
-                {
-                    p[index][j]=0;
-                }
-            }
-        }
-        else{
             std::cout << "NO" << std::endl;
             int first = -1;
             for(int j = 0; j < m_n-1; j++)
@@ -919,7 +913,6 @@ void MainWindow::impossibleBotTime()
                 std::cout << std::endl;
             }
             std::cout << std::endl;
-        }
     }
     bool ok = false;
     for(int i = 0; i < m_n; i++)
@@ -971,7 +964,7 @@ void MainWindow::impossibleBotTime()
             break;
     }
 
-
+    }
     if(Xor!=0)
     {
         bool good = false;
