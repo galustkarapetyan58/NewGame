@@ -738,9 +738,11 @@ void MainWindow::impossibleSlote(int i, int j)
     }
 }
 
+
+
 void MainWindow::impossibleBotTime()
 {
-    int c = 0, r = 0;
+    int co = 0, r = 0;
     std::vector<std::vector<int>> cur;
     for(int i = 0; i < m_n; i++)
     {
@@ -772,7 +774,7 @@ void MainWindow::impossibleBotTime()
         line1=m_bubbles[i][m_n-1]->styleSheet(), line2 = m_bubbles[i][m_n-2]->styleSheet(), line3 = m_bubbles[i][0]->styleSheet(), line4 = m_bubbles[i][1]->styleSheet();
         if(line1.contains("#a3c9f1") && line1!=line2)
             cnt=1;
-            c.push_back(cnt);
+        c.push_back(cnt);
         if(line3.contains("#a3c9f1") && line3!=line4)
         {
             c.insert(c.begin(), 1);
@@ -791,15 +793,7 @@ void MainWindow::impossibleBotTime()
             Xor^=cur[i][j];
         }
     }
-    for(int i = 0; i < cur.size(); i++)
-    {
-        for(int j = 0; j < cur[i].size(); j++)
-        {
-            std::cout << cur[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+    int one = 0;
     for(int i = 0; i < cur.size(); i++)
     {
         for(int j = 0; j < cur[i].size(); j++)
@@ -807,16 +801,20 @@ void MainWindow::impossibleBotTime()
             if(cur[i][j]>=2)
             {
                 ind = i;
-                c++;
+                co++;
             }
             if(cur[i][j]==0)
             {
                 r++;
             }
+            if(cur[i][j]==1)
+            {
+                one++;
+            }
         }
     }
     int index = -1;
-
+    int onlyZero = 0;
     for(int i = 0; i < cur.size(); i++)
     {
         std::vector<int> c(m_n, 1);
@@ -835,6 +833,93 @@ void MainWindow::impossibleBotTime()
                 p[i][j]=0;
         }
         count[p[i]]++;
+    }
+    int odd = 0;
+    for(int i = 0; i < m_n; i++)
+    {
+        if(count[p[i]]%2!=0)
+            odd++;
+    }
+    for(int i = 0; i < m_n; i++)
+    {
+        bool good = true;
+        for(int j = 0; j < m_n; j++)
+        {
+            if(p[i][j]!=0)
+            {
+                good=false;
+                break;
+            }
+        }
+        if(good)
+            onlyZero++;
+    }
+    odd%=2;
+    if(co==1)
+    {
+        if(odd)
+        {
+            std::cout << "YES" << std::endl;
+            for(int j = 0; j < cur[index].size(); j++)
+            {
+                std::cout << cur[index][j] << " ";
+            }
+            std::cout << std::endl;
+            if(cur[index].size()==1)
+            {
+                int jim = -1;
+                for(int j = 0; j < m_n; j++)
+                {
+                    if(p[index][j]!=0)
+                    {
+                        jim=j;
+                        break;
+                    }
+                }
+                for(int j = jim; j < m_n; j++)
+                {
+                    p[index][j]=0;
+                }
+            }
+        }
+        else{
+            std::cout << "NO" << std::endl;
+            int first = -1;
+            for(int j = 0; j < m_n-1; j++)
+            {
+                if(p[ind][j]!=0 && p[ind][j+1]!=0)
+                {
+                    first=j;
+                    break;
+                }
+            }
+            int last = -1;
+            for(int j = first; j < m_n-1; j++)
+            {
+                if(p[ind][j]!=0 && p[ind][j+1]==0||p[ind][j]!=0 && j+1==m_n-1)
+                {
+                    last = j;
+                    break;
+                }
+            }
+            std::cout << first+1 << " " << last+1 << std::endl;
+            if(first==last && last<m_n-1 && one%2!=0)
+                last++;
+            for(int j = first; j <= last; j++)
+            {
+                p[ind][j]=0;
+            }
+            std::cout << ind << std::endl;
+            for(int i = 0; i < m_n; i++)
+            {
+                for(int j = 0; j < m_n; j++)
+                {
+                    std::cout << p[i][j] << " ";
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
     }
     bool ok = false;
     for(int i = 0; i < m_n; i++)
@@ -860,10 +945,20 @@ void MainWindow::impossibleBotTime()
                     }
                     if(cnt1>cnt2)
                     {
-                        if(r!=cur.size()-1)
-                        p[i]=p[j];
-                        c=true;
-                        break;
+                        if(odd)
+                        {
+                         if(cnt2!=0)
+                         {
+                         p[i]=p[j];
+                         c=true;
+                         break;
+                         }
+                        }
+                        else{
+                            p[i]=p[j];
+                            c=true;
+                            break;
+                        }
                     }
                 }
             }
@@ -875,52 +970,8 @@ void MainWindow::impossibleBotTime()
         if(ok)
             break;
     }
-    if(!ok)
-    {
-        if(index!=-1)
-        {
-            for(int j = 0; j < m_n; j++)
-                animateBlueToGrey(m_bubbles[index][j]);
-        }
-    }
-    if(c==1)
-    {
-        if(r!=cur.size()-1){
-        if(ind!=-1)
-        {
-            if(p[ind][0]!=0)
-                for(int j = 0; j < m_n-1; j++)
-                {
-                    p[ind][j]=0;
-                }
-            else{
-                for(int j = m_n-1; j > 0; j--)
-                {
-                    p[ind][j]=0;
-                }
-            }
-        }
-        }
-        else{
-            std::cout << r << std::endl;
-            int sum = 0;
-            for(int j = 0; j < m_n; j++)
-            {
-                sum+=p[ind][j];
-            }
-            for(int j = 0; j < m_n; j++)
-            {
-                if(sum>1)
-                {
-                 if(p[ind][j]==1)
-                    {
-                        sum--;
-                     p[ind][j]=0;
-                    }
-                }
-            }
-        }
-    }
+
+
     if(Xor!=0)
     {
         bool good = false;
