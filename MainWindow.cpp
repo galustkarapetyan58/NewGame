@@ -742,7 +742,6 @@ void MainWindow::impossibleSlote(int i, int j)
 
 void MainWindow::impossibleBotTime()
 {
-    int co = 0, r = 0;
     std::vector<std::vector<int>> cur;
     for(int i = 0; i < m_n; i++)
     {
@@ -774,6 +773,7 @@ void MainWindow::impossibleBotTime()
         line1=m_bubbles[i][m_n-1]->styleSheet(), line2 = m_bubbles[i][m_n-2]->styleSheet(), line3 = m_bubbles[i][0]->styleSheet(), line4 = m_bubbles[i][1]->styleSheet();
         if(line1.contains("#a3c9f1") && line1!=line2)
             cnt=1;
+
         c.push_back(cnt);
         if(line3.contains("#a3c9f1") && line3!=line4)
         {
@@ -781,211 +781,215 @@ void MainWindow::impossibleBotTime()
         }
         cur.push_back(c);
     }
-
-    std::vector<std::vector<int>> p;
-    std::map<std::vector<int>, int> count;
-    int ind = -1;
-    int Xor = 0;
+    bool allIsNotGreaterThanOne = true;
+    int odd = 0;
+    int row = -1, col = -1;
+    int countOfGreaterThanOne = 0;
     for(int i = 0; i < cur.size(); i++)
     {
         for(int j = 0; j < cur[i].size(); j++)
         {
-            Xor^=cur[i][j];
-        }
-    }
-    int one = 0;
-    for(int i = 0; i < cur.size(); i++)
-    {
-        for(int j = 0; j < cur[i].size(); j++)
-        {
-            if(cur[i][j]>=2)
+            if(cur[i][j]>1)
             {
-                ind = i;
-                co++;
-            }
-            if(cur[i][j]==0)
-            {
-                r++;
+             allIsNotGreaterThanOne=false;
+                countOfGreaterThanOne++;
             }
             if(cur[i][j]==1)
+            odd++;
+        }
+    }
+    if(allIsNotGreaterThanOne)
+    {
+        easySlote(m_n, 0);
+        return;
+    }
+    for(int i = 0; i < cur.size(); i++)
+    {
+        for(int j = 0; j < cur[i].size(); j++)
+        {
+            std::cout << cur[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::vector<std::pair<int, std::pair<int, int>>> pairs;
+    for(int i = 0; i < cur.size(); i++)
+    {
+        for(int j = 0; j < cur[i].size(); j++)
+        {
+            std::pair<int, std::pair<int, int>> pai;
+            pai={cur[i][j], {0, 0}};
+            pairs.push_back(pai);
+            for(int n = 0; n <= cur[i][j]; n++)
             {
-                one++;
+                for(int m = n+1; m < cur[i][j]-n; m++)
+                { std::pair<int, std::pair<int, int>> pair;
+                    std::pair<int, int> p = {m, n};
+                    pair = {cur[i][j], p};
+                    pairs.push_back(pair);
+                }
             }
         }
     }
-    int index = -1;
-    int onlyZero = 0;
+
+
+    std::vector<std::vector<int>> current = cur;
     for(int i = 0; i < cur.size(); i++)
     {
-        std::vector<int> c(m_n, 1);
-        p.push_back(c);
+        bool ok = false;
+        for(int k = 0; k < cur[i].size(); k++)
+        {
+            int x = 0;
+            bool p = false;
+            for(int t = 0; t < pairs.size(); t++)
+            {
+                if(pairs[t].first==cur[i][k])
+                {
+                    int cnt = 0, c = 0;
+                    if(pairs[t].second.first==1)
+                        cnt++;
+                    if(pairs[t].second.second==1)
+                        cnt++;
+                    if(cur[i][k]==1)
+                        c++;
+                    if((odd+cnt-c)%2!=0 && countOfGreaterThanOne==1 && cur[i][k]>=1)
+                    {
+                        std::cout << "First" << std::endl;
+                        std::cout << i+1 << std::endl;
+                        std::cout << std::endl;
+                        cur[i][k]=pairs[t].second.first;
+                        cur[i].insert(cur[i].begin()+k+1, pairs[t].second.second);
+                        p=true;
+                        break;
+                    }
+                }
+            }
+            if(p)
+            {
+                ok=true;
+                break;
+            }
     }
+        if(ok)
+        break;
+    }
+    std::vector<std::vector<int>> bubbles(m_n, std::vector<int>(m_n, 1));
     for(int i = 0; i < m_n; i++)
     {
         for(int j = 0; j < m_n; j++)
         {
             QString line = m_bubbles[i][j]->styleSheet();
-            if(line.contains("grey")||line.contains("white"))
-                p[i][j]=0;
-        }
-        count[p[i]]++;
-    }
-    int odd = 0;
-    for(int i = 0; i < m_n; i++)
-    {
-        if(count[p[i]]%2!=0)
-        {
-            odd++;
-            index=i;
-        }
-    }
-    for(int i = 0; i < m_n; i++)
-    {
-        bool good = true;
-        for(int j = 0; j < m_n; j++)
-        {
-            if(p[i][j]!=0)
+            if(line.contains("grey"))
             {
-                good=false;
-                break;
+                bubbles[i][j]=0;
             }
         }
-        if(good)
-            onlyZero++;
     }
-    if(odd==1)
+    int ind = -1;
+    for(int i = 0; i < cur.size(); i++)
     {
-        int jim = -1;
-        for(int j = 0; j < m_n; j++)
+        if(current[i]!=cur[i])
         {
-            if(p[index][j]!=0)
-            {
-                jim=j;
-                break;
-            }
-        }
-        for(int j = jim; j < m_n; j++)
-        {
-            p[index][j]=0;
+            ind=i;
+            break;
         }
     }
-    if(odd==1)
+    if(ind==-1)
     {
-        easySlote(m_n, 0);
-    }
-    else{
-    odd%=2;
-    if(co==1)
-    {
-            std::cout << "NO" << std::endl;
-            int first = -1;
-            for(int j = 0; j < m_n-1; j++)
+        for(int i = 0; i < cur.size(); i++)
+        {
+            bool ok = false;
+            for(int k = 0; k < cur[i].size(); k++)
             {
-                if(p[ind][j]!=0 && p[ind][j+1]!=0)
+                 std::vector<int> po;
+                int x = 0;
+                for(int r = 0; r < cur.size(); r++)
                 {
-                    first=j;
-                    break;
-                }
-            }
-            int last = -1;
-            for(int j = first; j < m_n-1; j++)
-            {
-                if(p[ind][j]!=0 && p[ind][j+1]==0||p[ind][j]!=0 && j+1==m_n-1)
-                {
-                    last = j;
-                    break;
-                }
-            }
-            std::cout << first+1 << " " << last+1 << std::endl;
-            if(first==last && last<m_n-1 && one%2!=0)
-                last++;
-            for(int j = first; j <= last; j++)
-            {
-                p[ind][j]=0;
-            }
-            std::cout << ind << std::endl;
-            for(int i = 0; i < m_n; i++)
-            {
-                for(int j = 0; j < m_n; j++)
-                {
-                    std::cout << p[i][j] << " ";
-                }
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
-    }
-    bool ok = false;
-    for(int i = 0; i < m_n; i++)
-    {
-        if(count[p[i]]%2!=0)
-        {
-            bool c = false;
-            for(int j = 0; j < m_n; j++)
-            {
-                if(p[i]!=p[j] && count[p[j]]%2!=0)
-                {
-                    int cnt1 = 0, cnt2 = 0;
-                    for(int k = 0; k < p[i].size(); k++)
+                    for(int l = 0; l < cur[r].size(); l++)
                     {
-                        if(p[i][k]==1)
+                        if(r==i)
                         {
-                            cnt1++;
+                            if(l!=k)
+                            {
+                                po.push_back(cur[r][l]);
+                                x^=cur[r][l];
+                            }
                         }
-                        if(p[j][k]==1)
-                        {
-                            cnt2++;
+                        else{
+                            po.push_back(cur[r][l]);
+                            x^=cur[r][l];
                         }
                     }
-                    if(cnt1>cnt2)
+                }
+                bool p = false;
+                for(int t = 0; t < pairs.size(); t++)
+                {
+                    if(pairs[t].first==cur[i][k])
                     {
-                        if(odd)
+                        if((x^cur[i][k])!=0)
                         {
-                         if(cnt2!=0)
+                         if(((x^pairs[t].second.first)^pairs[t].second.second)==0)
                          {
-                         p[i]=p[j];
-                         c=true;
-                         break;
+                                std::cout << "Second" << std::endl;
+                             for(int o = 0; o < po.size(); o++)
+                                    std::cout << po[o] << " ";
+                                std::cout << std::endl;
+                             std::cout << std::endl;
+                            cur[i][k]=pairs[t].second.first;
+                            cur[i].insert(cur[i].begin()+k+1, pairs[t].second.second);
+                            p=true;
+                            break;
                          }
                         }
                         else{
-                            p[i]=p[j];
-                            c=true;
-                            break;
+                            easySlote(m_n, 0);
+                            return;
                         }
                     }
                 }
-            }
-            if(c){
-                ok=true;
-                break;
-            }
-        }
-        if(ok)
-            break;
-    }
-
-    }
-    if(Xor!=0)
-    {
-        bool good = false;
-        for(int i = 0; i < m_n; i++)
-        {
-            for(int j = 0; j < m_n; j++)
-            {
-                QString line = m_bubbles[i][j]->styleSheet();
-                if(p[i][j]==0 && !line.contains("white") && !line.contains("grey"))
+                if(p)
                 {
-                    animateBlueToGrey(m_bubbles[i][j]);
-                    m_state[i][j]=0;
-                    good = true;
+                    ok=true;
+                    break;
                 }
             }
-            if(good)
+            if(ok)
                 break;
         }
-        m_current=cur;
     }
-    else{
+    for(int i = 0; i < cur.size(); i++)
+    {
+        if(current[i]!=cur[i])
+        {
+            ind=i;
+            break;
+        }
+    }
+    if(ind==-1)
+    {
+        std::cout << "Second" << std::endl;
         easySlote(m_n, 0);
+        return;
+    }
+    std::cout << std::endl;
+    int k = 0;
+    int sum = 0;
+    for(int i = 0; i < cur.size(); i++)
+    {
+        std::cout << i+1 << std::endl;
+        for(int j = 0; j < cur[i].size(); j++)
+        {
+            std::cout << cur[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    for(int i = 0; i < m_n; i++)
+    {
+        for(int j = 0; j < m_n; j++)
+        {
+            if(bubbles[i][j]==0)
+            {
+                animateBlueToGrey(m_bubbles[i][j]);
+            }
+        }
     }
 }
