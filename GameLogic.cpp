@@ -19,17 +19,17 @@ void GameLogic::buttonPressedSlot(int i, int j){
     m_state = m_mainWindow->getState();
     if(m_white+m_grey!=(m_state.size()-1)*(m_state.size()-1))
     {
-    if (m_state[i][j]) {
+        if (m_state[i][j]) {
             emit gameSignal(i, j);
-      }
+        }
     }
     else{
         if(l.contains("✔")){
             emit gameOverSignal();
-     }
+        }
         else{
             emit gameSignal(i, j);
-      }
+        }
     }
 }
 
@@ -124,11 +124,10 @@ void GameLogic::gameImpossibleBotTimeSlot()
         for(int j = 0; j < cur[i].size(); j++)
         {
             std::pair<int, std::pair<int, int>> pai;
-            pai={cur[i][j], {0, 0}};
             pairs.push_back(pai);
             for(int n = 0; n <= cur[i][j]; n++)
             {
-                for(int m = n+1; m < cur[i][j]-n; m++)
+                for(int m = n; m < cur[i][j]-n; m++)
                 { std::pair<int, std::pair<int, int>> pair;
                     std::pair<int, int> p = {m, n};
                     pair = {cur[i][j], p};
@@ -441,7 +440,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
     while(length!=0 && index<bubbles[ind].size())
     {
         if(bubbles[ind][index]!=0)
-        length--;
+            length--;
         bubbles[ind][index]=0;
         index++;
     }

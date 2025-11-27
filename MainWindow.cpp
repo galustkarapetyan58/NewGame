@@ -307,122 +307,122 @@ void MainWindow::mainWindowSlot(int i, int j)
             m_gameEnded=true;
         }
         else{
-        if(!o.contains("background-color: white"))
-        {
-            if(countOfWhite()){
-            btn->setStyleSheet(
-                "QPushButton {"
-                "   background-color: white;"
-                "   color: red;"
-                "   font-size: 24px;"
-                "   border-radius: 15px;"
-                "   border: 2px solid #ff4c4c;"
-                "}"
-                "QPushButton:hover {"
-                "   background-color: #ff7b7b;"
-                "   color: red;"
-                "}"
-                "QPushButton:pressed {"
-                "   background-color: #ff4c4c;"
-                "   color: red;"
-                "}"
-                );
-                o = btn->styleSheet();
-            }
-            if(_o!=o)
+            if(!o.contains("background-color: white"))
             {
+                if(countOfWhite()){
+                    btn->setStyleSheet(
+                        "QPushButton {"
+                        "   background-color: white;"
+                        "   color: red;"
+                        "   font-size: 24px;"
+                        "   border-radius: 15px;"
+                        "   border: 2px solid #ff4c4c;"
+                        "}"
+                        "QPushButton:hover {"
+                        "   background-color: #ff7b7b;"
+                        "   color: red;"
+                        "}"
+                        "QPushButton:pressed {"
+                        "   background-color: #ff4c4c;"
+                        "   color: red;"
+                        "}"
+                        );
+                    o = btn->styleSheet();
+                }
+                if(_o!=o)
+                {
+                    m_label1->setStyleSheet("font-size: 18px; color: black;");
+                    m_label2->setStyleSheet("font-size: 18px; color: red;");
+                }
+            }
+            else{
                 m_label1->setStyleSheet("font-size: 18px; color: black;");
                 m_label2->setStyleSheet("font-size: 18px; color: red;");
+                if(countOfWhite()){
+                    btn->setStyleSheet(
+                        "QPushButton {"
+                        "   background-color: #ff6b6b;"
+                        "   color: white;"
+                        "   font-size: 24px;"
+                        "   border-radius: 15px;"
+                        "   border: 2px solid #ff4c4c;"
+                        "}"
+                        "QPushButton:hover {"
+                        "   background-color: #ff7b7b;"
+                        "   color: white;"
+                        "}"
+                        "QPushButton:pressed {"
+                        "   background-color: #ff4c4c;"
+                        "   color: white;"
+                        "}"
+                        );
+                    o=btn->styleSheet();
+                }
+                if(_o!=o)
+                {
+                    m_label1->setStyleSheet("font-size: 18px; color: blue;");
+                    m_label2->setStyleSheet("font-size: 18px; color: black;");
+                }
             }
-        }
-        else{
-            m_label1->setStyleSheet("font-size: 18px; color: black;");
-            m_label2->setStyleSheet("font-size: 18px; color: red;");
-            if(countOfWhite()){
-            btn->setStyleSheet(
-                "QPushButton {"
-                "   background-color: #ff6b6b;"
-                "   color: white;"
-                "   font-size: 24px;"
-                "   border-radius: 15px;"
-                "   border: 2px solid #ff4c4c;"
-                "}"
-                "QPushButton:hover {"
-                "   background-color: #ff7b7b;"
-                "   color: white;"
-                "}"
-                "QPushButton:pressed {"
-                "   background-color: #ff4c4c;"
-                "   color: white;"
-                "}"
-                );
-                o=btn->styleSheet();
-            }
-            if(_o!=o)
-            {
-                m_label1->setStyleSheet("font-size: 18px; color: blue;");
-                m_label2->setStyleSheet("font-size: 18px; color: black;");
-            }
-         }
         }
     }
     else{
 
-    bool clickable = false;
-    bool blue = isBlue(i, j);
-    QString line = m_bubbles[i][j]->styleSheet();
-    if(!line.contains("grey"))
-    {
-    if (!hasWhite(i))
-    {
-        clickable = true;
-    }
-    else
-    {
-        if (isWhite(i, j))
+        bool clickable = false;
+        bool blue = isBlue(i, j);
+        QString line = m_bubbles[i][j]->styleSheet();
+        if(!line.contains("grey"))
         {
-            clickable = true;
-        }
-        else if (blue)
-        {
-            bool leftWhite = (j > 0 && isWhite(i, j - 1));
-            bool rightWhite = (j < m_bubbles[i].size() - 1 && isWhite(i, j + 1));
-
-            if (leftWhite || rightWhite)
-                clickable = true;
-        }
-    }
-
-    if (!clickable)
-        return;
-
-
-    if (blue)
-    {
-        bool ok = true;
-        for(int x = 0; x < m_bubbles.size()-1; x++)
-        {
-            if(x!=i)
+            if (!hasWhite(i))
             {
-                if(hasWhite(x))
+                clickable = true;
+            }
+            else
+            {
+                if (isWhite(i, j))
                 {
-                    ok=false;
-                    break;
+                    clickable = true;
+                }
+                else if (blue)
+                {
+                    bool leftWhite = (j > 0 && isWhite(i, j - 1));
+                    bool rightWhite = (j < m_bubbles[i].size() - 1 && isWhite(i, j + 1));
+
+                    if (leftWhite || rightWhite)
+                        clickable = true;
                 }
             }
+
+            if (!clickable)
+                return;
+
+
+            if (blue)
+            {
+                bool ok = true;
+                for(int x = 0; x < m_bubbles.size()-1; x++)
+                {
+                    if(x!=i)
+                    {
+                        if(hasWhite(x))
+                        {
+                            ok=false;
+                            break;
+                        }
+                    }
+                }
+                if(ok)
+                    setWhite(i, j);
+            }
+            else if (isWhite(i, j))
+            {
+                bool leftBlue  = (j > 0 && isBlue(i, j - 1));
+                bool rightBlue = (j < m_bubbles[i].size() - 1 && isBlue(i, j + 1));
+                if (leftBlue || rightBlue || j == 0 || j == m_bubbles[i].size() - 1)
+                    setBlue(i, j);
+            }
         }
-        if(ok)
-            setWhite(i, j);
     }
-    else if (isWhite(i, j))
-    {
-        bool leftBlue  = (j > 0 && isBlue(i, j - 1));
-        bool rightBlue = (j < m_bubbles[i].size() - 1 && isBlue(i, j + 1));
-        if (leftBlue || rightBlue || j == 0 || j == m_bubbles[i].size() - 1)
-            setBlue(i, j);
-    }
-  }
-}
 }
 
 QLabel* MainWindow::getLabel() const
