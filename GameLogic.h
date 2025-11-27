@@ -13,17 +13,19 @@ signals:
     void gameIsMediumSignal(int i, int j);
     void gameIsHardSignal(int i, int j);
     void gameIsImpossibleSignal(int i, int j);
+    void animateToGreySignal(QPushButton* button);
+    void easyBotTime();
 public:
-   explicit GameLogic(MainWindow* mainwindow);
+    explicit GameLogic(MainWindow* mainwindow);
     bool ok();
-   void gameIsOver();
+    void gameIsOver();
 public slots:
     void buttonPressedSlot(int i, int j);
     void gameIsEasySlot(int i, int j);
     void gameIsMediumSlot(int i, int j);
     void gameIsHardSlot(int i, int j);
     void gameIsImpossibleSlot(int i, int j);
-    void impossibleBotTime();
+    void gameImpossibleBotTimeSlot();
 private:
     MainWindow* m_mainWindow;
     QVector<QVector<bool>> m_state;

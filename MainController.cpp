@@ -36,6 +36,9 @@ void MainController::mainEasySlote(int size)
     connect(m_mainWindow, &MainWindow::buttonPressedSignal,
             m_gameLogic, &GameLogic::gameIsEasySlot);
     connect(m_gameLogic, &GameLogic::gameIsEasySignal, m_mainWindow, &MainWindow::easySlote);
+    connect(m_gameLogic, &GameLogic::animateToGreySignal, m_mainWindow, &MainWindow::animateBlueToGrey);
+    connect(m_mainWindow, &MainWindow::playImpossible, m_gameLogic, &GameLogic::gameImpossibleBotTimeSlot);
+    connect(m_gameLogic, &GameLogic::easyBotTime, m_mainWindow, &MainWindow::easyBotTimeSlot);
     m_mainWindow->show();
 }
 
@@ -46,6 +49,9 @@ void MainController::mainMediumSlote(int size)
     connect(m_mainWindow, &MainWindow::buttonPressedSignal,
             m_gameLogic, &GameLogic::gameIsMediumSlot);
     connect(m_gameLogic, &GameLogic::gameIsMediumSignal, m_mainWindow, &MainWindow::mediumSlote);
+    connect(m_gameLogic, &GameLogic::animateToGreySignal, m_mainWindow, &MainWindow::animateBlueToGrey);
+    connect(m_mainWindow, &MainWindow::playImpossible, m_gameLogic, &GameLogic::gameImpossibleBotTimeSlot);
+    connect(m_gameLogic, &GameLogic::easyBotTime, m_mainWindow, &MainWindow::easyBotTimeSlot);
     m_mainWindow->show();
 }
 void MainController::mainHardSlote(int size)
@@ -55,6 +61,9 @@ void MainController::mainHardSlote(int size)
     connect(m_mainWindow, &MainWindow::buttonPressedSignal,
             m_gameLogic, &GameLogic::gameIsHardSlot);
     connect(m_gameLogic, &GameLogic::gameIsHardSignal, m_mainWindow, &MainWindow::hardSlote);
+    connect(m_gameLogic, &GameLogic::animateToGreySignal, m_mainWindow, &MainWindow::animateBlueToGrey);
+    connect(m_mainWindow, &MainWindow::playImpossible, m_gameLogic, &GameLogic::gameImpossibleBotTimeSlot);
+    connect(m_gameLogic, &GameLogic::easyBotTime, m_mainWindow, &MainWindow::easyBotTimeSlot);
     m_mainWindow->show();
 }
 void MainController::mainImpossibleSlote(int size)
@@ -64,6 +73,9 @@ void MainController::mainImpossibleSlote(int size)
     connect(m_mainWindow, &MainWindow::buttonPressedSignal,
             m_gameLogic, &GameLogic::gameIsImpossibleSlot);
     connect(m_gameLogic, &GameLogic::gameIsImpossibleSignal, m_mainWindow, &MainWindow::impossibleSlote);
+    connect(m_gameLogic, &GameLogic::animateToGreySignal, m_mainWindow, &MainWindow::animateBlueToGrey);
+    connect(m_mainWindow, &MainWindow::playImpossible, m_gameLogic, &GameLogic::gameImpossibleBotTimeSlot);
+    connect(m_gameLogic, &GameLogic::easyBotTime, m_mainWindow, &MainWindow::easyBotTimeSlot);
     m_mainWindow->show();
 }
 
