@@ -515,22 +515,43 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
 
 void MainWindow::easySlote(int i, int j)
 {
+    // Safety check
+    if (i > m_n) return;
+
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
+
     if (!l.contains("background-color: white"))
     {
-        emit playersTurnSignal(i, j);
-        if(i==m_n)
-        QTimer::singleShot(500, this, [this]() {
-            easySlote(m_n, 0);
-        });
+        // 1. Board Button Clicked
+        if (i < m_n) {
+            emit playersTurnSignal(i, j);
+        }
+        // 2. Check Button Clicked (Confirm)
+        else if (i == m_n) {
+            if(sender() != nullptr) {
+                emit checkButtonSignal();
+                // Wait for animation to finish before letting loop continue
+                QTimer::singleShot(1000, this, [this]() {
+                    easySlote(m_n, 0);
+                });
+                return; // STOP here
+            }
+        }
+
+        // 3. Recursive Loop
+        if(i == m_n) {
+            QTimer::singleShot(500, this, [this]() {
+                easySlote(m_n, 0);
+            });
+        }
     }
     else
     {
+        // Bot Move
         easyBotTimeSlot();
     }
 }
-
 void MainWindow::easyBotTimeSlot()
 {
 
@@ -725,19 +746,40 @@ void MainWindow::rowToGrey()
 
 void MainWindow::hardSlote(int i, int j)
 {
-    m_cnt++;
+    // Safety check
+    if (i > m_n) return;
+
+    m_cnt++; // Keep your counter logic
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
+
     if (!l.contains("background-color: white"))
     {
-        emit playersTurnSignal(i, j);
-        if(i==m_n)
+        // 1. Board Button Clicked
+        if (i < m_n) {
+            emit playersTurnSignal(i, j);
+        }
+        // 2. Check Button Clicked
+        else if (i == m_n) {
+            if(sender() != nullptr) {
+                emit checkButtonSignal();
+                QTimer::singleShot(1000, this, [this]() {
+                    hardSlote(m_n, 0);
+                });
+                return; // STOP here
+            }
+        }
+
+        // 3. Recursive Loop
+        if(i == m_n) {
             QTimer::singleShot(500, this, [this]() {
                 hardSlote(m_n, 0);
             });
+        }
     }
     else
     {
+        // Bot Move
         QTimer::singleShot(500, this, [this](){
             hardBotTime();
         });
@@ -746,7 +788,6 @@ void MainWindow::hardSlote(int i, int j)
         });
     }
 }
-
 void MainWindow::hardBotTime()
 {
     if(m_cnt%2==0)
@@ -760,18 +801,39 @@ void MainWindow::hardBotTime()
 
 void MainWindow::impossibleSlote(int i, int j)
 {
+    // Safety check
+    if (i > m_n) return;
+
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
+
     if (!l.contains("background-color: white"))
     {
-        emit playersTurnSignal(i, j);
-        if(i==m_n)
+        // 1. Board Button Clicked
+        if (i < m_n) {
+            emit playersTurnSignal(i, j);
+        }
+        // 2. Check Button Clicked
+        else if (i == m_n) {
+            if(sender() != nullptr) {
+                emit checkButtonSignal();
+                QTimer::singleShot(1000, this, [this]() {
+                    impossibleSlote(m_n, 0);
+                });
+                return; // STOP here
+            }
+        }
+
+        // 3. Recursive Loop
+        if(i == m_n) {
             QTimer::singleShot(500, this, [this]() {
-               impossibleSlote(m_n, 0);
+                impossibleSlote(m_n, 0);
             });
+        }
     }
     else
     {
+        // Bot Move
         QTimer::singleShot(500, this, [this](){
             impossibleBotTime();
         });
