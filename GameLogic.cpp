@@ -92,3 +92,8 @@ void GameLogic::gameIsImpossibleSlot(int i, int j)
         emit gameOverSignal();
     }
 }
+
+void GameLogic::impossibleBotTime()
+{
+
+}

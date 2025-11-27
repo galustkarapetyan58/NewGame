@@ -23,6 +23,7 @@ public slots:
     void gameIsMediumSlot(int i, int j);
     void gameIsHardSlot(int i, int j);
     void gameIsImpossibleSlot(int i, int j);
+    void impossibleBotTime();
 private:
     MainWindow* m_mainWindow;
     QVector<QVector<bool>> m_state;
