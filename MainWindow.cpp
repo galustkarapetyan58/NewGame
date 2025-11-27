@@ -228,6 +228,9 @@ bool MainWindow::isAllGrey()
 
 void MainWindow::makeConnections() {
     connect(this, &MainWindow::playersTurnSignal, this, &MainWindow::mainWindowSlot);
+    connect(this, &MainWindow::checkButtonSignal, this, [this]() {
+        mainWindowSlot(m_n, 0);
+    });
     m_state.resize(m_bubbles.size());
     for (int i = 0; i < m_bubbles.size(); i++) {
         m_state[i].resize(m_bubbles[i].size(), 1);
@@ -577,16 +580,46 @@ void MainWindow::checkboxToWhite()
 
 void MainWindow::mediumSlote(int i, int j)
 {
+    // Safety check
+    if (i > m_n) return;
+
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
+
+    // IF BUTTON IS COLORED (RED/BLUE)
     if (!l.contains("background-color: white"))
     {
-        emit playersTurnSignal(i, j);
-        if(i==m_n)
+        // 1. Player clicked a Ball
+        if (i < m_n) {
+            emit playersTurnSignal(i, j);
+        }
+        // 2. Player clicked the Check Button (CONFIRM MOVE)
+        else if (i == m_n) {
+
+            // Check if this was a real mouse click (not a timer)
+            if(sender() != nullptr) {
+                emit checkButtonSignal(); // Process Player Move
+
+                // --- THE FIX ---
+                // Wait 1000ms before restarting the loop.
+                // This gives the "White -> Grey" animation (400ms) time to finish
+                // so the Bot doesn't get confused and move instantly.
+                QTimer::singleShot(1000, this, [this]() {
+                    mediumSlote(m_n, 0);
+                });
+
+                return; // STOP here. Don't run the code below immediately.
+            }
+        }
+
+        // 3. Recursive Loop (Only runs if we didn't return above)
+        if(i == m_n) {
             QTimer::singleShot(500, this, [this]() {
                 mediumSlote(m_n, 0);
             });
+        }
     }
+    // IF BUTTON IS WHITE (Turn is processed, Bot's turn)
     else
     {
         QTimer::singleShot(500, this, [this](){
@@ -597,7 +630,6 @@ void MainWindow::mediumSlote(int i, int j)
         });
     }
 }
-
 void MainWindow::rowToGrey()
 {
     int i = -1;
@@ -717,7 +749,7 @@ void MainWindow::hardSlote(int i, int j)
 
 void MainWindow::hardBotTime()
 {
-    if(m_cnt%5==0)
+    if(m_cnt%2==0)
     {
         impossibleBotTime();
     }

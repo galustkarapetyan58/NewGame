@@ -43,6 +43,7 @@ signals:
     void buttonPressedSignal(int i, int j);
     void playersTurnSignal(int i, int j);
     void playImpossible();
+    void checkButtonSignal();
 public slots:
     void gameOverSlot();
     void mainWindowSlot(int i, int j);
