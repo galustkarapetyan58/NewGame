@@ -181,10 +181,108 @@ void GameLogic::gameImpossibleBotTimeSlot()
     int ind = -1;
     for(int i = 0; i < cur.size(); i++)
     {
+
+        int sum1 = 0, sum2 = 0;
         if(current[i]!=cur[i])
         {
-            ind=i;
-            break;
+            for(int x = 0; x < current[i].size(); x++)
+            {
+                sum1+=current[i][x];
+            }
+            for(int x = 0; x < cur[i].size(); x++)
+            {
+                sum2+=cur[i][x];
+            }
+            if(sum1!=sum2)
+            {
+                ind = i;
+                break;
+            }
+        }
+    }
+
+    if(ind==-1)
+    {
+        for(int i = 0; i < cur.size(); i++)
+        {
+
+            bool ok = false;
+            for(int k = 0; k < cur[i].size(); k++)
+            {
+                std::vector<int> po;
+                int x = 0;
+                for(int r = 0; r < cur.size(); r++)
+                {
+                    for(int l = 0; l < cur[r].size(); l++)
+                    {
+                        if(r==i)
+                        {
+                            if(l!=k)
+                            {
+                                po.push_back(cur[r][l]);
+                                x^=cur[r][l];
+                            }
+                        }
+                        else{
+                            po.push_back(cur[r][l]);
+                            x^=cur[r][l];
+                        }
+                    }
+                }
+                bool p = false;
+                for(int t = 0; t < pairs.size(); t++)
+                {
+                    if(pairs[t].first==cur[i][k])
+                    {
+                        if((x^cur[i][k])!=0)
+                        {
+                            if(((x^pairs[t].second.first)^pairs[t].second.second)==0 && x!=pairs[t].second.second && x!=pairs[t].second.first)
+                            {
+                                std::cout << "Third" << std::endl;
+                                for(int o = 0; o < po.size(); o++)
+                                    std::cout << po[o] << " ";
+                                std::cout << std::endl;
+                                std::cout << std::endl;
+                                cur[i][k]=pairs[t].second.first;
+                                cur[i].insert(cur[i].begin()+k+1, pairs[t].second.second);
+                                p=true;
+                                break;
+                            }
+                        }
+                        else{
+                            emit easyBotTime();
+                            return;
+                        }
+                    }
+                }
+                if(p)
+                {
+                    ok=true;
+                    break;
+                }
+            }
+            if(ok)
+                break;
+        }
+    }
+    for(int i = 0; i < cur.size(); i++)
+    {
+        int sum1 = 0, sum2 = 0;
+        if(current[i]!=cur[i])
+        {
+            for(int x = 0; x < current[i].size(); x++)
+            {
+                sum1+=current[i][x];
+            }
+            for(int x = 0; x < cur[i].size(); x++)
+            {
+                sum2+=cur[i][x];
+            }
+            if(sum1!=sum2)
+            {
+                ind = i;
+                break;
+            }
         }
     }
     if(ind==-1)
@@ -278,7 +376,6 @@ void GameLogic::gameImpossibleBotTimeSlot()
     int x = -1;
     for(int j = 0; j < std::min(cur[ind].size(), current[ind].size()); j++)
     {
-        int sum1 = 0, sum2 = 0;
         if(current[ind][j]!=cur[ind][j])
         {
             x=j;
@@ -331,18 +428,24 @@ void GameLogic::gameImpossibleBotTimeSlot()
         }
     }
     int cnt = 0;
+
     while(cnt<=new1)
     {
         index++;
         cnt++;
     }
+    std::cout << index+1 << std::endl;
     int length = old - new1 - new2;
-    while(length!=0)
+    if(old==1)
+        index++;
+    while(length!=0 && index<bubbles[ind].size())
     {
+        if(bubbles[ind][index]!=0)
+        length--;
         bubbles[ind][index]=0;
         index++;
-        length--;
     }
+
     for(int i = 0; i < m_n; i++)
     {
         for(int j = 0; j < m_n; j++)
