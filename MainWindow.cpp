@@ -20,11 +20,6 @@ MainWindow::MainWindow(int n, QWidget *parent)
     createMembers();
     setupMembers();
     makeConnections();
-    std::vector<int> a = {m_n};
-    for(int i = 0; i < m_n; i++)
-        m_current.push_back(a);
-    a.clear();
-    m_cnt=1;
 }
 void MainWindow::createMembers() {
     m_grid = new QGridLayout();
@@ -192,12 +187,23 @@ void MainWindow::setupMembers() {
     m_row.push_back(btn);
     m_bubbles.push_back(m_row);
     m_row.clear();
-
     m_label1->setStyleSheet("font-size: 18px; color: blue;");
     m_label2->setStyleSheet("font-size: 18px; color: black;");
+
+    // 1. Add the grid to the main layout
     m_mainline->addLayout(m_grid);
+
+    // 2. THIS IS THE FIX:
+    // Tell the main layout to keep the grid compact and centered.
+    // This prevents the grid from stretching apart when the window gets bigger.
+    m_mainline->setAlignment(m_grid, Qt::AlignCenter);
+
     m_mainline->addWidget(m_label1);
     m_mainline->addWidget(m_label2);
+
+    // Optional: Add a "Stretch" at the bottom if you want to push everything up
+    // m_mainline->addStretch();
+
     m_window->setLayout(m_mainline);
     setCentralWidget(m_window);
 }
@@ -770,6 +776,7 @@ void MainWindow::impossibleBotTime()
                 m=1;
             }
         }
+        m_current=cur;
         line1=m_bubbles[i][m_n-1]->styleSheet(), line2 = m_bubbles[i][m_n-2]->styleSheet(), line3 = m_bubbles[i][0]->styleSheet(), line4 = m_bubbles[i][1]->styleSheet();
         if(line1.contains("#a3c9f1") && line1!=line2)
             cnt=1;

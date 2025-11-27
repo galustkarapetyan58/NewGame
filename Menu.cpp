@@ -106,18 +106,36 @@ int size = 0;
 
         m_newButtons.push_back(btn);
         m_allButtons.push_back(m_newButtons);
+        // ... (Your existing loops that add buttons to 'layout' go here) ...
+
         for(int i = 0; i < m_allButtons.size(); i++)
         {
             for(int j = 0; j < m_allButtons[i].size(); j++)
             {
                 layout->addWidget(m_allButtons[i][j], i, j);
                 connect(m_allButtons[i][j], &QPushButton::clicked, this, [=]()
-                {
-                  emit buttonIsPressedSignal(i, j);
-                });
+                        {
+                            emit buttonIsPressedSignal(i, j);
+                        });
             }
         }
-        m_window->setLayout(layout);
+
+        // --- START OF FIX ---
+
+        // 1. Create a main wrapper layout (Vertical Box)
+        QVBoxLayout* mainWrapper = new QVBoxLayout();
+
+        // 2. Add your grid to this wrapper
+        mainWrapper->addLayout(layout);
+
+        // 3. The Magic Line: Center the grid so it doesn't stretch apart
+        mainWrapper->setAlignment(layout, Qt::AlignCenter);
+
+        // 4. Set the wrapper as the window's layout (instead of the grid directly)
+        m_window->setLayout(mainWrapper);
+
+        // --- END OF FIX ---
+
         m_window->setWindowTitle("Menu");
         m_window->show();
 }
