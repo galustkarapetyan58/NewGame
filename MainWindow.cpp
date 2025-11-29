@@ -16,6 +16,7 @@
 MainWindow::MainWindow(int n, QWidget *parent)
     : QMainWindow{parent}, m_n(n)
 {
+    m_isProcessingClick=false;
     m_gameEnded=false;
     createMembers();
     setupMembers();
@@ -516,39 +517,62 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
 void MainWindow::easySlote(int i, int j)
 {
     // Safety check
-    if (i > m_n) return;
+    if (m_bubbles.empty() || i > m_n || m_n >= m_bubbles.size()) return;
 
     QPushButton* checkBtn = m_bubbles[m_n][0];
+    if (!checkBtn) return;
+
     QString l = checkBtn->styleSheet();
 
+    // Only allow interaction if it's NOT the bot's turn (White background = Bot Turn)
     if (!l.contains("background-color: white"))
     {
-        // 1. Board Button Clicked
+        // 1. BOARD BUTTONS (i < m_n)
+        // We do NOT check m_isProcessingClick here, so you can always click board tiles.
         if (i < m_n) {
             emit playersTurnSignal(i, j);
         }
-        // 2. Check Button Clicked (Confirm)
-        else if (i == m_n) {
-            if(sender() != nullptr) {
-                emit checkButtonSignal();
-                // Wait for animation to finish before letting loop continue
-                QTimer::singleShot(1000, this, [this]() {
-                    easySlote(m_n, 0);
-                });
-                return; // STOP here
+
+        // 2. CHECK BUTTON (i == m_n)
+        // We apply the spam-protection ONLY here.
+        else if (i == m_n && sender() != nullptr) {
+
+            // --- SPAM PROTECTION ---
+            // If we are already processing a click, IGNORE this new click.
+            if (m_isProcessingClick) {
+                return;
             }
+
+            // Lock it now
+            m_isProcessingClick = true;
+
+            emit checkButtonSignal();
+
+            // Unlock after 1 second
+            QTimer::singleShot(1000, this, [this]() {
+                m_isProcessingClick = false; // Unlock
+
+                // Safe recursion check
+                if (!m_bubbles.empty() && m_n < m_bubbles.size()) {
+                    easySlote(m_n, 0);
+                }
+            });
+            return;
         }
 
-        // 3. Recursive Loop
+        // 3. SYSTEM LOOP (Recursion)
+        // This runs automatically (sender is null), so we ignore the lock.
         if(i == m_n) {
             QTimer::singleShot(500, this, [this]() {
-                easySlote(m_n, 0);
+                if (!m_bubbles.empty() && m_n < m_bubbles.size()) {
+                    easySlote(m_n, 0);
+                }
             });
         }
     }
     else
     {
-        // Bot Move
+        // Bot Turn
         easyBotTimeSlot();
     }
 }

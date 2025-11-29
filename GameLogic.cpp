@@ -481,7 +481,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
             index++;
         }
     }
-
+    int cn = 0;
     for(int i = 0; i < m_n && i < m_bubbles.size(); i++)
     {
         // FIX: Loop based on exact row size
@@ -491,9 +491,15 @@ void GameLogic::gameImpossibleBotTimeSlot()
             if(i < bubbles.size() && j < bubbles[i].size()) {
                 if(bubbles[i][j]==0)
                 {
+                    cn++;
                     emit animateToGreySignal(m_bubbles[i][j]);
                 }
             }
         }
+    }
+    if(cn==0)
+    {
+        emit easyBotTime();
+        return;
     }
 }

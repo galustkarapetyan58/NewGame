@@ -9,6 +9,7 @@
 #include <QGraphicsColorizeEffect>
 #include <QPropertyAnimation>
 #include <QLabel>
+#include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -30,7 +31,8 @@ public:
     void hardBotTime();
     void impossibleBotTime();
 private:
-
+    Ui::MainWindow *ui;
+    bool m_isProcessingClick;
     bool isBlue(int x, int y);
     bool isWhite(int x, int y);
     bool hasWhite(int row);
