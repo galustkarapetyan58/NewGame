@@ -21,6 +21,7 @@ MainWindow::MainWindow(int n, QWidget *parent)
     createMembers();
     setupMembers();
     makeConnections();
+    m_cnt=0;
 }
 void MainWindow::createMembers() {
     m_grid = new QGridLayout();
