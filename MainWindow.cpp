@@ -902,3 +902,4 @@ void MainWindow::impossibleBotTime()
     m_impossibleBubbles=bubbles;
     emit playImpossible();
 }
+

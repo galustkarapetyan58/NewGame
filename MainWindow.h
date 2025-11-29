@@ -54,7 +54,8 @@ public slots:
     void animateBlueToGrey(QPushButton* button);
     void easyBotTimeSlot();
 private:
-
+    int m_buttonsClickedCount = 0; // How many correct buttons pressed
+    int m_totalSafeButtons = 0;    // Total buttons minus mines
     void createMembers();
     void setupMembers();
     void makeConnections();

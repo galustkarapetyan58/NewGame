@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <bits/stdc++.h>
 #include <QTimer>
+
 GameLogic::GameLogic(MainWindow* mainWindow): m_mainWindow(mainWindow) {
     m_bubbles=m_mainWindow->getBubbles();
     m_white = m_mainWindow->countOfWhite(), m_grey = m_mainWindow->countOfGrey();
@@ -14,21 +15,33 @@ bool GameLogic::ok()
 {
     return m_mainWindow->isAllGrey();
 }
-void GameLogic::buttonPressedSlot(int i, int j){
+void GameLogic::buttonPressedSlot(int i, int j)
+{
     QString l = m_bubbles[i][j]->text();
     m_state = m_mainWindow->getState();
-    if(m_white+m_grey!=(m_state.size()-1)*(m_state.size()-1))
+
+    if(!ok())
     {
         if (m_state[i][j]) {
             emit gameSignal(i, j);
         }
     }
-    else{
+    else
+    {
+        // 1. Check for Loss
         if(l.contains("✔")){
             emit gameOverSignal();
         }
         else{
+            // 2. Process the move
             emit gameSignal(i, j);
+
+            // 3. FIX: Check for Win immediately!
+            // You need a function like isBoardFull() or checkWinCondition()
+            if (ok())
+            {
+                emit gameOverSignal(); // Reuse the same signal, or create gameWonSignal()
+            }
         }
     }
 }
@@ -37,7 +50,7 @@ void GameLogic::gameIsEasySlot(int i, int j)
 {
     QString l = m_bubbles[i][j]->text();
     m_state = m_mainWindow->getState();
-    if(m_white+m_grey!=(m_state.size()-1)*(m_state.size()-1))
+    if(!ok())
     {
         if (m_state[i][j]) {
             emit gameIsEasySignal(i, j);
@@ -52,7 +65,7 @@ void GameLogic::gameIsMediumSlot(int i, int j)
 {
     QString l = m_bubbles[i][j]->styleSheet();
     m_state = m_mainWindow->getState();
-    if(m_white+m_grey!=(m_state.size()-1)*(m_state.size()-1))
+    if(!ok())
     {
         if (m_state[i][j]) {
             emit gameIsMediumSignal(i, j);
@@ -67,7 +80,7 @@ void GameLogic::gameIsHardSlot(int i, int j)
 {
     QString l = m_bubbles[i][j]->styleSheet();
     m_state = m_mainWindow->getState();
-    if(m_white+m_grey!=(m_state.size()-1)*(m_state.size()-1))
+    if(!ok())
     {
         if (m_state[i][j]) {
             emit gameIsHardSignal(i, j);
@@ -124,6 +137,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
         for(int j = 0; j < cur[i].size(); j++)
         {
             std::pair<int, std::pair<int, int>> pai;
+            pai={cur[i][j], {0, 0}};
             pairs.push_back(pai);
             for(int n = 0; n <= cur[i][j]; n++)
             {
@@ -288,6 +302,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
     {
         for(int i = 0; i < cur.size(); i++)
         {
+
             bool ok = false;
             for(int k = 0; k < cur[i].size(); k++)
             {
@@ -320,7 +335,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
                         {
                             if(((x^pairs[t].second.first)^pairs[t].second.second)==0)
                             {
-                                std::cout << "Second" << std::endl;
+                                std::cout << "Third" << std::endl;
                                 for(int o = 0; o < po.size(); o++)
                                     std::cout << po[o] << " ";
                                 std::cout << std::endl;
@@ -372,6 +387,9 @@ void GameLogic::gameImpossibleBotTimeSlot()
         emit easyBotTime();
         return;
     }
+    // Safety check for indices
+    if(ind >= current.size() || ind >= cur.size()) return;
+
     int x = -1;
     for(int j = 0; j < std::min(cur[ind].size(), current[ind].size()); j++)
     {
@@ -381,6 +399,10 @@ void GameLogic::gameImpossibleBotTimeSlot()
             break;
         }
     }
+
+    // Safety check for x
+    if(x == -1 || x >= current[ind].size() || x >= cur[ind].size()) return;
+
     std::cout << ind+1 << std::endl;
     for(int j = 0; j < current[ind].size(); j++)
     {
@@ -398,31 +420,42 @@ void GameLogic::gameImpossibleBotTimeSlot()
 
     int old = current[ind][x];
     int new1 = cur[ind][x];
-    int new2 = cur[ind][x+1];
+
+    // Check if x+1 exists before accessing
+    int new2 = 0;
+    if(x+1 < cur[ind].size()) {
+        new2 = cur[ind][x+1];
+    }
+
     std::cout << new1 << " " << new2 << std::endl;
     std::cout << old << std::endl;
     std::cout << std::endl;
     int col = 0;
     int l = 0;
     int index = -1;
-    for(int j = 0; j < m_n; j++)
-    {
-        QString line = m_bubbles[ind][j]->styleSheet();
-        if(!line.contains("grey"))
+
+    // FIX: Use m_bubbles[ind].size() instead of m_n or assumption
+    if(ind < m_bubbles.size()) {
+        for(int j = 0; j < m_bubbles[ind].size(); j++)
         {
-            int k = j;
-            while(k<m_n && !m_bubbles[ind][k]->styleSheet().contains("grey"))
+            QString line = m_bubbles[ind][j]->styleSheet();
+            if(!line.contains("grey"))
             {
-                l++;
-                k++;
-            }
-            if(l==old)
-            {
-                index=j-1;
-                break;
-            }
-            else{
-                l=0;
+                int k = j;
+                // FIX: Check range limit k < m_bubbles[ind].size()
+                while(k < m_bubbles[ind].size() && !m_bubbles[ind][k]->styleSheet().contains("grey"))
+                {
+                    l++;
+                    k++;
+                }
+                if(l==old)
+                {
+                    index=j-1;
+                    break;
+                }
+                else{
+                    l=0;
+                }
             }
         }
     }
@@ -437,21 +470,29 @@ void GameLogic::gameImpossibleBotTimeSlot()
     int length = old - new1 - new2;
     if(old==1)
         index++;
-    while(length!=0 && index<bubbles[ind].size())
-    {
-        if(bubbles[ind][index]!=0)
-            length--;
-        bubbles[ind][index]=0;
-        index++;
+
+    // FIX: Check bounds for bubbles[ind]
+    if(ind < bubbles.size()) {
+        while(length!=0 && index < bubbles[ind].size())
+        {
+            if(bubbles[ind][index]!=0)
+                length--;
+            bubbles[ind][index]=0;
+            index++;
+        }
     }
 
-    for(int i = 0; i < m_n; i++)
+    for(int i = 0; i < m_n && i < m_bubbles.size(); i++)
     {
-        for(int j = 0; j < m_n; j++)
+        // FIX: Loop based on exact row size
+        for(int j = 0; j < m_bubbles[i].size(); j++)
         {
-            if(bubbles[i][j]==0)
-            {
-                emit animateToGreySignal(m_bubbles[i][j]);
+            // Safety check for bubbles vector sync
+            if(i < bubbles.size() && j < bubbles[i].size()) {
+                if(bubbles[i][j]==0)
+                {
+                    emit animateToGreySignal(m_bubbles[i][j]);
+                }
             }
         }
     }
