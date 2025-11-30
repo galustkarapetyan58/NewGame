@@ -7,10 +7,27 @@
 #include <QTimer>
 
 GameLogic::GameLogic(MainWindow* mainWindow): m_mainWindow(mainWindow) {
+    m_isFlagModeActive=false;
     m_bubbles=m_mainWindow->getBubbles();
     m_white = m_mainWindow->countOfWhite(), m_grey = m_mainWindow->countOfGrey();
 }
 
+// Connect your checkbox/toggle button's signal to this slot.
+// e.g., connect(ui->flagModeButton, &QPushButton::toggled, gameLogic, &GameLogic::toggleFlagModeSlot);
+
+void GameLogic::toggleFlagModeSlot(bool checked)
+{
+    // Update internal state based on whether the button is checked or not
+    m_isFlagModeActive = checked;
+
+    if(m_isFlagModeActive) {
+        qDebug() << "Flag Mode activated! Normal clicks disabled.";
+        // The UI button should handle turning its own background color ON here.
+    } else {
+        qDebug() << "Flag Mode deactivated. Normal clicks enabled.";
+        // The UI button should handle turning its own background color OFF here.
+    }
+}
 bool GameLogic::ok()
 {
     return m_mainWindow->isAllGrey();
@@ -48,13 +65,35 @@ void GameLogic::buttonPressedSlot(int i, int j)
 
 void GameLogic::gameIsEasySlot(int i, int j)
 {
+    // --- THE FIX IS HERE ---
+
+    // 1. Check if Flag Mode is active.
+    if (m_isFlagModeActive) {
+        // If we are in flag mode, do NOT execute normal game logic.
+        // Instead, perform the "flagging" action.
+
+        qDebug() << "Flagging cell at:" << i << j;
+
+        // Optional: Emit a signal telling MainWindow to visually update this bubble with a flag icon.
+        // emit cellFlaggedSignal(i, j);
+
+        // CRITICAL: Return immediately. The "AI" (normal logic below) will not run.
+        return;
+    }
+
+    // --- NORMAL LOGIC RESUMES HERE (Only runs if m_isFlagModeActive is false) ---
+
+    // Ideally, you shouldn't access UI elements (m_bubbles) directly in logic classes,
+    // but I'll leave this line as it was in your original code.
     QString l = m_bubbles[i][j]->text();
+
     m_state = m_mainWindow->getState();
     if(!ok())
     {
         if (m_state[i][j]) {
             emit gameIsEasySignal(i, j);
         }
+        // NOTE: You might need an 'else' here to handle safe clicks (revealing empty space)
     }
     else{
         emit gameOverSignal();

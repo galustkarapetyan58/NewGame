@@ -31,6 +31,7 @@ public:
     void hardBotTime();
     void impossibleBotTime();
 private:
+    bool m_isPlayerTurn;
     Ui::MainWindow *ui;
     bool m_isProcessingClick;
     bool isBlue(int x, int y);

@@ -16,6 +16,7 @@
 MainWindow::MainWindow(int n, QWidget *parent)
     : QMainWindow{parent}, m_n(n)
 {
+    m_isPlayerTurn = true;
     m_isProcessingClick=false;
     m_gameEnded=false;
     createMembers();
@@ -564,7 +565,7 @@ void MainWindow::easySlote(int i, int j)
         // 3. SYSTEM LOOP (Recursion)
         // This runs automatically (sender is null), so we ignore the lock.
         if(i == m_n) {
-            QTimer::singleShot(500, this, [this]() {
+            QTimer::singleShot(1500, this, [this]() {
                 if (!m_bubbles.empty() && m_n < m_bubbles.size()) {
                     easySlote(m_n, 0);
                 }
@@ -605,6 +606,10 @@ void MainWindow::easyBotTimeSlot()
 }
 void MainWindow::checkboxToWhite()
 {
+    QPushButton* checkBtn = m_bubbles[m_n][0];
+
+    // 1. Safely switch state back to TRUE
+    m_isPlayerTurn = true;
     m_bubbles[m_n][0]->setStyleSheet(
         "QPushButton {"
         "   background-color: #ff6b6b;"
@@ -774,41 +779,64 @@ void MainWindow::hardSlote(int i, int j)
     // Safety check
     if (i > m_n) return;
 
-    m_cnt++; // Keep your counter logic
-    QPushButton* checkBtn = m_bubbles[m_n][0];
-    QString l = checkBtn->styleSheet();
+    // Optional: Only increment count if it's a real move, not just clicks
+    // m_cnt++;
 
-    if (!l.contains("background-color: white"))
+    QPushButton* checkBtn = m_bubbles[m_n][0];
+
+    // ============================================================
+    // LOGIC BRANCH BASED ON BOOLEAN STATE, NOT COLOR
+    // ============================================================
+    if (m_isPlayerTurn)
     {
-        // 1. Board Button Clicked
+        // --- PLAYER'S TURN ---
+
+        // 1. Board Button Clicked (Making a move)
         if (i < m_n) {
+            // The turn is not over yet, just register the move.
             emit playersTurnSignal(i, j);
         }
-        // 2. Check Button Clicked
+        // 2. Check Button Clicked (Finishing turn)
         else if (i == m_n) {
+            // Ensure this is a real user click
             if(sender() != nullptr) {
+                // Emit signal if needed by other parts of app
                 emit checkButtonSignal();
-                QTimer::singleShot(1000, this, [this]() {
+
+                // =========================================================
+                // --- CRITICAL STATE CHANGE: SAFE SWITCH TO FALSE ---
+                // This is the exact moment the player's turn ends.
+                // We do it BEFORE starting timers to prevent race conditions.
+                // =========================================================
+                m_isPlayerTurn = false;
+
+                // NOW update visuals to reflect the new state (Bot's Turn = White)
+                checkBtn->setStyleSheet("background-color: white;");
+
+                // Schedule the bot to start its logic after a short delay.
+                // When this timer fires, hardSlote will run again, but
+                // m_isPlayerTurn will be false, so it will go to the 'else' block.
+                QTimer::singleShot(500, this, [this]() {
                     hardSlote(m_n, 0);
                 });
-                return; // STOP here
             }
-        }
-
-        // 3. Recursive Loop
-        if(i == m_n) {
-            QTimer::singleShot(500, this, [this]() {
-                hardSlote(m_n, 0);
-            });
+            // IMPORTANT: We return here so the code doesn't fall through.
+            return;
         }
     }
     else
     {
-        // Bot Move
-        QTimer::singleShot(500, this, [this](){
-            hardBotTime();
-        });
+        // --- BOT'S TURN (m_isPlayerTurn is false) ---
+
+        // 1. Perform Bot Move
+        // Note: No need for a 500ms delay here, the delay happened before calling this.
+        hardBotTime();
+
+        // 2. Schedule Turn pass back to player.
+        // This gives time to see the bot's move before the UI resets.
         QTimer::singleShot(1500, this, [this](){
+            // This function needs to set m_isPlayerTurn back to TRUE.
+            // See Step 4 below.
             checkboxToWhite();
         });
     }

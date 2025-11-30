@@ -16,6 +16,7 @@ signals:
     void animateToGreySignal(QPushButton* button);
     void easyBotTime();
 public:
+    void toggleFlagModeSlot(bool checked);
     explicit GameLogic(MainWindow* mainwindow);
     bool ok();
     void gameIsOver();
@@ -27,6 +28,7 @@ public slots:
     void gameIsImpossibleSlot(int i, int j);
     void gameImpossibleBotTimeSlot();
 private:
+    bool m_isFlagModeActive;
     MainWindow* m_mainWindow;
     QVector<QVector<bool>> m_state;
     QVector<QVector<QPushButton*>> m_bubbles;

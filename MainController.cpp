@@ -3,7 +3,7 @@
 #include "Menu.h"
 #include "GameLogic.h"
 #include "MenuLogic.h"
-
+#include "ui_mainwindow.h"
 MainController::MainController() {
 
     createMembers();
