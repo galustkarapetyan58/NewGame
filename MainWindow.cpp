@@ -518,63 +518,88 @@ void MainWindow::animateBlueToGrey(QPushButton* button)
 
 void MainWindow::easySlote(int i, int j)
 {
-    // Safety check
     if (m_bubbles.empty() || i > m_n || m_n >= m_bubbles.size()) return;
-
     QPushButton* checkBtn = m_bubbles[m_n][0];
     if (!checkBtn) return;
 
     QString l = checkBtn->styleSheet();
 
-    // Only allow interaction if it's NOT the bot's turn (White background = Bot Turn)
+    // IF NOT WHITE -> PLAYER TURN
     if (!l.contains("background-color: white"))
     {
-        // 1. BOARD BUTTONS (i < m_n)
-        // We do NOT check m_isProcessingClick here, so you can always click board tiles.
         if (i < m_n) {
+            m_cnt++;
             emit playersTurnSignal(i, j);
         }
-
-        // 2. CHECK BUTTON (i == m_n)
-        // We apply the spam-protection ONLY here.
         else if (i == m_n && sender() != nullptr) {
+            if (m_isProcessingClick) return;
 
-            // --- SPAM PROTECTION ---
-            // If we are already processing a click, IGNORE this new click.
-            if (m_isProcessingClick) {
-                return;
-            }
+            // VALIDATION
+            if (m_cnt == 0) return;
 
-            // Lock it now
             m_isProcessingClick = true;
-
             emit checkButtonSignal();
+            m_cnt = 0;
 
-            // Unlock after 1 second
-            QTimer::singleShot(1000, this, [this]() {
-                m_isProcessingClick = false; // Unlock
+            // 1. SHOW SELECTED COLOR (Blue/Green)
+            checkBtn->setStyleSheet(
+                                        "QPushButton {"
+                                        "   background-color: white;"
+                                        "   color: red;"
+                                        "   font-size: 24px;"
+                                        "   border-radius: 15px;"
+                                        "   border: 2px solid #ff4c4c;"
+                                        "}"
+                                        "QPushButton:hover {"
+                                        "   background-color: #ff7b7b;"
+                                        "   color: red;"
+                                        "}"
+                                        "QPushButton:pressed {"
+                                        "   background-color: #ff4c4c;"
+                                        "   color: red;"
+                                        "}"
+                                        );
 
-                // Safe recursion check
+            // 2. WAIT 1 SECOND, THEN PASS TO BOT
+            QTimer::singleShot(1000, this, [this, checkBtn]() {
+                m_isProcessingClick = false;
+
+                // --- CRITICAL FIX ---
+                // We must set it to WHITE so the next loop triggers the Bot.
+                checkBtn->setStyleSheet(
+                    "QPushButton {"
+                    "   background-color: white;"
+                    "   color: red;"
+                    "   font-size: 24px;"
+                    "   border-radius: 15px;"
+                    "   border: 2px solid #ff4c4c;"
+                    "}"
+                    "QPushButton:hover {"
+                    "   background-color: #ff7b7b;"
+                    "   color: red;"
+                    "}"
+                    "QPushButton:pressed {"
+                    "   background-color: #ff4c4c;"
+                    "   color: red;"
+                    "}"
+                    );
+
                 if (!m_bubbles.empty() && m_n < m_bubbles.size()) {
-                    easySlote(m_n, 0);
+                    easySlote(m_n, 0); // This will now go to the 'else' block
                 }
             });
             return;
         }
 
-        // 3. SYSTEM LOOP (Recursion)
-        // This runs automatically (sender is null), so we ignore the lock.
         if(i == m_n) {
             QTimer::singleShot(1500, this, [this]() {
-                if (!m_bubbles.empty() && m_n < m_bubbles.size()) {
-                    easySlote(m_n, 0);
-                }
+                if (!m_bubbles.empty() && m_n < m_bubbles.size()) easySlote(m_n, 0);
             });
         }
     }
+    // IF WHITE -> BOT TURN
     else
     {
-        // Bot Turn
         easyBotTimeSlot();
     }
 }
@@ -631,54 +656,78 @@ void MainWindow::checkboxToWhite()
 
 void MainWindow::mediumSlote(int i, int j)
 {
-    // Safety check
     if (i > m_n) return;
-
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
 
-    // IF BUTTON IS COLORED (RED/BLUE)
     if (!l.contains("background-color: white"))
     {
-        // 1. Player clicked a Ball
         if (i < m_n) {
+            m_cnt++;
             emit playersTurnSignal(i, j);
         }
-        // 2. Player clicked the Check Button (CONFIRM MOVE)
         else if (i == m_n) {
-
-            // Check if this was a real mouse click (not a timer)
             if(sender() != nullptr) {
-                emit checkButtonSignal(); // Process Player Move
+                if (m_cnt == 0) return;
 
-                // --- THE FIX ---
-                // Wait 1000ms before restarting the loop.
-                // This gives the "White -> Grey" animation (400ms) time to finish
-                // so the Bot doesn't get confused and move instantly.
-                QTimer::singleShot(1000, this, [this]() {
+                emit checkButtonSignal();
+                m_cnt = 0;
+
+                // 1. SHOW SELECTED COLOR
+                checkBtn->setStyleSheet(
+                    "QPushButton {"
+                    "   background-color: white;"
+                    "   color: red;"
+                    "   font-size: 24px;"
+                    "   border-radius: 15px;"
+                    "   border: 2px solid #ff4c4c;"
+                    "}"
+                    "QPushButton:hover {"
+                    "   background-color: #ff7b7b;"
+                    "   color: red;"
+                    "}"
+                    "QPushButton:pressed {"
+                    "   background-color: #ff4c4c;"
+                    "   color: red;"
+                    "}"
+                    );
+
+                // 2. WAIT, THEN PASS TO BOT
+                QTimer::singleShot(1000, this, [this, checkBtn]() {
+
+                    // --- CRITICAL FIX ---
+                    checkBtn->setStyleSheet(
+                        "QPushButton {"
+                        "   background-color: white;"
+                        "   color: red;"
+                        "   font-size: 24px;"
+                        "   border-radius: 15px;"
+                        "   border: 2px solid #ff4c4c;"
+                        "}"
+                        "QPushButton:hover {"
+                        "   background-color: #ff7b7b;"
+                        "   color: red;"
+                        "}"
+                        "QPushButton:pressed {"
+                        "   background-color: #ff4c4c;"
+                        "   color: red;"
+                        "}"
+                        );
+
                     mediumSlote(m_n, 0);
                 });
-
-                return; // STOP here. Don't run the code below immediately.
+                return;
             }
         }
-
-        // 3. Recursive Loop (Only runs if we didn't return above)
         if(i == m_n) {
-            QTimer::singleShot(500, this, [this]() {
-                mediumSlote(m_n, 0);
-            });
+            QTimer::singleShot(500, this, [this]() { mediumSlote(m_n, 0); });
         }
     }
-    // IF BUTTON IS WHITE (Turn is processed, Bot's turn)
     else
     {
-        QTimer::singleShot(500, this, [this](){
-            rowToGrey();
-        });
-        QTimer::singleShot(1500, this, [this](){
-            checkboxToWhite();
-        });
+        // Bot Turn Logic
+        QTimer::singleShot(500, this, [this](){ rowToGrey(); });
+        QTimer::singleShot(1500, this, [this](){ checkboxToWhite(); });
     }
 }
 void MainWindow::rowToGrey()
@@ -779,13 +828,10 @@ void MainWindow::hardSlote(int i, int j)
     // Safety check
     if (i > m_n) return;
 
-    // Optional: Only increment count if it's a real move, not just clicks
-    // m_cnt++;
-
     QPushButton* checkBtn = m_bubbles[m_n][0];
 
     // ============================================================
-    // LOGIC BRANCH BASED ON BOOLEAN STATE, NOT COLOR
+    // LOGIC BRANCH
     // ============================================================
     if (m_isPlayerTurn)
     {
@@ -793,50 +839,71 @@ void MainWindow::hardSlote(int i, int j)
 
         // 1. Board Button Clicked (Making a move)
         if (i < m_n) {
-            // The turn is not over yet, just register the move.
+
+            // [INSTRUCTION 1] You MUST uncomment this line so the game counts your moves!
+            m_cnt++;
+
             emit playersTurnSignal(i, j);
         }
-        // 2. Check Button Clicked (Finishing turn)
+        // 2. Check Button Clicked (Attempting to finish turn)
         else if (i == m_n) {
-            // Ensure this is a real user click
             if(sender() != nullptr) {
-                // Emit signal if needed by other parts of app
+
+                // =========================================================
+                // [INSTRUCTION 2] The Logic Check
+                // This 'if' statement stops the bot if you haven't moved.
+                // =========================================================
+                if (m_cnt == 0) {
+                    qDebug() << "You must make a move before checking!";
+                    return; // <--- This STOPS the function here.
+                }
+
                 emit checkButtonSignal();
 
                 // =========================================================
-                // --- CRITICAL STATE CHANGE: SAFE SWITCH TO FALSE ---
-                // This is the exact moment the player's turn ends.
-                // We do it BEFORE starting timers to prevent race conditions.
+                // State Change
                 // =========================================================
                 m_isPlayerTurn = false;
 
-                // NOW update visuals to reflect the new state (Bot's Turn = White)
-                checkBtn->setStyleSheet("background-color: white;");
+                // [INSTRUCTION 3] Reset the counter for the next turn
+                m_cnt = 0;
 
-                // Schedule the bot to start its logic after a short delay.
-                // When this timer fires, hardSlote will run again, but
-                // m_isPlayerTurn will be false, so it will go to the 'else' block.
+                // =========================================================
+                // Visual Update (Selected Style)
+                // =========================================================
+                // Copy the style string from your other buttons and paste it here.
+                checkBtn->setStyleSheet(
+                    "QPushButton {"
+                    "   background-color: white;"
+                    "   color: red;"
+                    "   font-size: 24px;"
+                    "   border-radius: 15px;"
+                    "   border: 2px solid #ff4c4c;"
+                    "}"
+                    "QPushButton:hover {"
+                    "   background-color: #ff7b7b;"
+                    "   color: red;"
+                    "}"
+                    "QPushButton:pressed {"
+                    "   background-color: #ff4c4c;"
+                    "   color: red;"
+                    "}"
+                    );
+
+                // Schedule Bot
                 QTimer::singleShot(500, this, [this]() {
                     hardSlote(m_n, 0);
                 });
             }
-            // IMPORTANT: We return here so the code doesn't fall through.
             return;
         }
     }
     else
     {
-        // --- BOT'S TURN (m_isPlayerTurn is false) ---
-
-        // 1. Perform Bot Move
-        // Note: No need for a 500ms delay here, the delay happened before calling this.
+        // --- BOT'S TURN ---
         hardBotTime();
 
-        // 2. Schedule Turn pass back to player.
-        // This gives time to see the bot's move before the UI resets.
         QTimer::singleShot(1500, this, [this](){
-            // This function needs to set m_isPlayerTurn back to TRUE.
-            // See Step 4 below.
             checkboxToWhite();
         });
     }
@@ -854,48 +921,80 @@ void MainWindow::hardBotTime()
 
 void MainWindow::impossibleSlote(int i, int j)
 {
-    // Safety check
     if (i > m_n) return;
-
     QPushButton* checkBtn = m_bubbles[m_n][0];
     QString l = checkBtn->styleSheet();
 
     if (!l.contains("background-color: white"))
     {
-        // 1. Board Button Clicked
         if (i < m_n) {
+            m_cnt++;
             emit playersTurnSignal(i, j);
         }
-        // 2. Check Button Clicked
         else if (i == m_n) {
             if(sender() != nullptr) {
+                if (m_cnt == 0) return;
+
                 emit checkButtonSignal();
-                QTimer::singleShot(1000, this, [this]() {
+                m_cnt = 0;
+
+                // 1. SHOW SELECTED COLOR
+                checkBtn->setStyleSheet(
+                    "QPushButton {"
+                    "   background-color: white;"
+                    "   color: red;"
+                    "   font-size: 24px;"
+                    "   border-radius: 15px;"
+                    "   border: 2px solid #ff4c4c;"
+                    "}"
+                    "QPushButton:hover {"
+                    "   background-color: #ff7b7b;"
+                    "   color: red;"
+                    "}"
+                    "QPushButton:pressed {"
+                    "   background-color: #ff4c4c;"
+                    "   color: red;"
+                    "}"
+                    );
+
+                // 2. WAIT, THEN PASS TO BOT
+                QTimer::singleShot(1000, this, [this, checkBtn]() {
+
+                    // --- CRITICAL FIX ---
+                    checkBtn->setStyleSheet(
+                        "QPushButton {"
+                        "   background-color: white;"
+                        "   color: red;"
+                        "   font-size: 24px;"
+                        "   border-radius: 15px;"
+                        "   border: 2px solid #ff4c4c;"
+                        "}"
+                        "QPushButton:hover {"
+                        "   background-color: #ff7b7b;"
+                        "   color: red;"
+                        "}"
+                        "QPushButton:pressed {"
+                        "   background-color: #ff4c4c;"
+                        "   color: red;"
+                        "}"
+                        );
+
                     impossibleSlote(m_n, 0);
                 });
-                return; // STOP here
+                return;
             }
         }
-
-        // 3. Recursive Loop
         if(i == m_n) {
-            QTimer::singleShot(500, this, [this]() {
-                impossibleSlote(m_n, 0);
-            });
+            QTimer::singleShot(500, this, [this]() { impossibleSlote(m_n, 0); });
         }
     }
     else
     {
-        // Bot Move
-        QTimer::singleShot(500, this, [this](){
-            impossibleBotTime();
-        });
-        QTimer::singleShot(1500, this, [this](){
-            checkboxToWhite();
-        });
+        // Bot Turn Logic
+        QTimer::singleShot(500, this, [this](){ impossibleBotTime(); });
+        QTimer::singleShot(1500, this, [this](){ checkboxToWhite(); });
     }
 }
-
 
 
 void MainWindow::impossibleBotTime()

@@ -426,7 +426,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
         emit easyBotTime();
         return;
     }
-    // Safety check for indices
+
     if(ind >= current.size() || ind >= cur.size()) return;
 
     int x = -1;
@@ -439,7 +439,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
         }
     }
 
-    // Safety check for x
+
     if(x == -1 || x >= current[ind].size() || x >= cur[ind].size()) return;
 
     std::cout << ind+1 << std::endl;
@@ -460,7 +460,7 @@ void GameLogic::gameImpossibleBotTimeSlot()
     int old = current[ind][x];
     int new1 = cur[ind][x];
 
-    // Check if x+1 exists before accessing
+
     int new2 = 0;
     if(x+1 < cur[ind].size()) {
         new2 = cur[ind][x+1];
@@ -473,7 +473,6 @@ void GameLogic::gameImpossibleBotTimeSlot()
     int l = 0;
     int index = -1;
 
-    // FIX: Use m_bubbles[ind].size() instead of m_n or assumption
     if(ind < m_bubbles.size()) {
         for(int j = 0; j < m_bubbles[ind].size(); j++)
         {
@@ -481,7 +480,6 @@ void GameLogic::gameImpossibleBotTimeSlot()
             if(!line.contains("grey"))
             {
                 int k = j;
-                // FIX: Check range limit k < m_bubbles[ind].size()
                 while(k < m_bubbles[ind].size() && !m_bubbles[ind][k]->styleSheet().contains("grey"))
                 {
                     l++;
@@ -510,7 +508,6 @@ void GameLogic::gameImpossibleBotTimeSlot()
     if(old==1)
         index++;
 
-    // FIX: Check bounds for bubbles[ind]
     if(ind < bubbles.size()) {
         while(length!=0 && index < bubbles[ind].size())
         {
@@ -523,10 +520,8 @@ void GameLogic::gameImpossibleBotTimeSlot()
     int cn = 0;
     for(int i = 0; i < m_n && i < m_bubbles.size(); i++)
     {
-        // FIX: Loop based on exact row size
         for(int j = 0; j < m_bubbles[i].size(); j++)
         {
-            // Safety check for bubbles vector sync
             if(i < bubbles.size() && j < bubbles[i].size()) {
                 if(bubbles[i][j]==0)
                 {
